@@ -57,7 +57,7 @@ function initLights() {
 
 function createSun() {
   const sun = new THREE.Mesh(
-    new THREE.SphereGeometry(SUN_CONFIG.radius, 64, 64),
+    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.radius, 64, 64),
     new THREE.MeshBasicMaterial({
       color: SUN_CONFIG.color,
       transparent: true,
