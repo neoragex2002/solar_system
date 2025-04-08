@@ -182,7 +182,7 @@ function updateLabelPosition(planet) {
 }
 
 function pulseSunGlow() {
-  const scale = 1 + Math.sin(Date.now() * 0.001) * SUN_CONFIG.glow.pulseScale;
+  const scale = 1 + Math.sin(Date.now() * 0.001) * SolarSystemConfig.SUN_CONFIG.glow.pulseScale;
   sunGlow.scale.set(scale, scale, scale);
 }
 
