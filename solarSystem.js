@@ -1,12 +1,4 @@
-import { 
-  SUN_CONFIG, 
-  PLANETS_DATA, 
-  LIGHT_CONFIG,
-  CAMERA_POSITION,
-  ORBIT_CONFIG,
-  LABEL_CONFIG,
-  SPEED_CONTROL_CONFIG
-} from './constants.js';
+// 使用全局变量
 
 // 初始化场景
 const scene = new THREE.Scene();

@@ -1,5 +1,5 @@
-// 太阳配置
-export const SUN_CONFIG = {
+// 全局常量配置
+const SUN_CONFIG = {
   radius: 5,
   color: 0xffff00,
   glow: {
@@ -11,7 +11,7 @@ export const SUN_CONFIG = {
 };
 
 // 行星配置
-export const PLANETS_DATA = [
+const PLANETS_DATA = [
   { radius: 0.4, orbitRadius: 10, speed: 0.04, color: 0x8a8a8a, name: "水星" },
   { radius: 0.6, orbitRadius: 15, speed: 0.03, color: 0xe6c229, name: "金星" },
   { radius: 0.6, orbitRadius: 20, speed: 0.02, color: 0x3498db, name: "地球" },
@@ -55,9 +55,20 @@ export const LABEL_CONFIG = {
 };
 
 // 速度控制配置
-export const SPEED_CONTROL_CONFIG = {
+const SPEED_CONTROL_CONFIG = {
   min: 0.1,
   max: 20,
   step: 0.1,
   defaultValue: 1
+};
+
+// 暴露全局变量
+window.SolarSystemConfig = {
+  SUN_CONFIG,
+  PLANETS_DATA,
+  LIGHT_CONFIG,
+  CAMERA_POSITION,
+  ORBIT_CONFIG,
+  LABEL_CONFIG,
+  SPEED_CONTROL_CONFIG
 };
