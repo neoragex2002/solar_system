@@ -23,7 +23,7 @@ const { sun, sunGlow } = createSun();
 const planets = createPlanets();
 
 // 初始化速度控制
-let simulationSpeed = SPEED_CONTROL_CONFIG.defaultValue;
+let simulationSpeed = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
 initSpeedControl();
 
 // 动画循环
@@ -219,9 +219,6 @@ function pulseSunGlow() {
     sunGlow.scale.y = 1 + Math.sin(Date.now() * 0.001) * 0.1;
     sunGlow.scale.z = 1 + Math.sin(Date.now() * 0.001) * 0.1;
 }
-
-// 全局速度控制
-let simulationSpeed = 1;
 
 // 初始化速度控制
 const speedSlider = document.getElementById('speed-slider');
