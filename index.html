@@ -31,6 +31,15 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script type="module" src="solarSystem.js"></script>
+    <!-- 添加Three.js模块化版本 -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js",
+        "three/": "https://cdn.jsdelivr.net/npm/three@0.132.2/"
+      }
+    }
+    </script>
 </body>
 
 </html>
