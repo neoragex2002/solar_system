@@ -59,7 +59,7 @@ function createSun() {
   const sun = new THREE.Mesh(
     new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.radius, 64, 64),
     new THREE.MeshBasicMaterial({
-      color: SUN_CONFIG.color,
+      color: SolarSystemConfig.SUN_CONFIG.color,
       transparent: true,
       opacity: 0.9
     })
@@ -75,11 +75,11 @@ function createSun() {
 
   // 太阳光晕
   const sunGlow = new THREE.Mesh(
-    new THREE.SphereGeometry(SUN_CONFIG.glow.radius, 64, 64),
+    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.glow.radius, 64, 64),
     new THREE.MeshBasicMaterial({
-      color: SUN_CONFIG.glow.color,
+      color: SolarSystemConfig.SUN_CONFIG.glow.color,
       transparent: true,
-      opacity: SUN_CONFIG.glow.opacity
+      opacity: SolarSystemConfig.SUN_CONFIG.glow.opacity
     })
   );
   scene.add(sunGlow);
@@ -124,7 +124,7 @@ function createPlanetLabel(name) {
 
 function createOrbitLine(radius) {
   const points = Array.from({ length: SolarSystemConfig.ORBIT_CONFIG.segments + 1 }, (_, i) => {
-    const angle = (i / ORBIT_CONFIG.segments) * Math.PI * 2;
+    const angle = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
     return new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle));
   });
   
@@ -139,11 +139,11 @@ function initSpeedControl() {
   const speedSlider = document.getElementById('speed-slider');
   const speedValue = document.getElementById('speed-value');
 
-  speedSlider.min = SPEED_CONTROL_CONFIG.min;
-  speedSlider.max = SPEED_CONTROL_CONFIG.max;
-  speedSlider.step = SPEED_CONTROL_CONFIG.step;
-  speedSlider.value = SPEED_CONTROL_CONFIG.defaultValue;
-  speedValue.textContent = `${SPEED_CONTROL_CONFIG.defaultValue}x`;
+  speedSlider.min = SolarSystemConfig.SPEED_CONTROL_CONFIG.min;
+  speedSlider.max = SolarSystemConfig.SPEED_CONTROL_CONFIG.max;
+  speedSlider.step = SolarSystemConfig.SPEED_CONTROL_CONFIG.step;
+  speedSlider.value = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
+  speedValue.textContent = `${SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue}x`;
 
   speedSlider.addEventListener('input', (e) => {
     simulationSpeed = parseFloat(e.target.value);
@@ -213,82 +213,3 @@ window.addEventListener('beforeunload', () => {
   });
 });
 
-// 更新太阳光晕大小
-function pulseSunGlow() {
-    sunGlow.scale.x = 1 + Math.sin(Date.now() * 0.001) * 0.1;
-    sunGlow.scale.y = 1 + Math.sin(Date.now() * 0.001) * 0.1;
-    sunGlow.scale.z = 1 + Math.sin(Date.now() * 0.001) * 0.1;
-}
-
-// 初始化速度控制
-const speedSlider = document.getElementById('speed-slider');
-const speedValue = document.getElementById('speed-value');
-
-speedSlider.addEventListener('input', (e) => {
-    simulationSpeed = parseFloat(e.target.value);
-    speedValue.textContent = `${simulationSpeed.toFixed(1)}x`;
-});
-
-// 动画循环
-function animate() {
-    pulseSunGlow();
-    requestAnimationFrame(animate);
-
-    // 旋转太阳
-    sun.rotation.y += 0.005;
-
-    // 更新行星位置
-    planets.forEach(planet => {
-        planet.angle += planet.speed * simulationSpeed;
-        planet.mesh.position.x = planet.orbitRadius * Math.cos(planet.angle);
-        planet.mesh.position.z = planet.orbitRadius * Math.sin(planet.angle);
-        planet.mesh.rotation.y += 0.01 * simulationSpeed;
-
-        // 更新标签位置 - 考虑摄像机视角
-        const planetWorldPos = new THREE.Vector3();
-        planet.mesh.getWorldPosition(planetWorldPos);
-
-        // 计算从摄像机到行星的方向向量
-        const cameraToPlanet = planetWorldPos.clone().sub(camera.position).normalize();
-
-        // 转换为屏幕坐标
-        const screenPos = planetWorldPos.clone().project(camera);
-        
-        // 直接在屏幕空间向上偏移
-        const screenYOffset = 30; // 像素偏移量
-        const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - screenYOffset;
-
-        // 确保标签在视锥体内
-        if (screenPos.z > 1 || screenPos.z < -1) {
-            planet.label.style.display = 'none';
-            return;
-        }
-
-        const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-
-        planet.label.style.display = 'block';
-        planet.label.style.left = `${x}px`;
-        planet.label.style.top = `${y}px`;
-    });
-
-    controls.update();
-    renderer.render(scene, camera);
-}
-
-// 处理窗口大小变化
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// 页面卸载时清理标签
-window.addEventListener('beforeunload', () => {
-    planets.forEach(planet => {
-        if (planet.label && planet.label.parentNode) {
-            planet.label.parentNode.removeChild(planet.label);
-        }
-    });
-});
-
-animate();
