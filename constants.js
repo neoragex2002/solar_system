@@ -24,7 +24,7 @@ const PLANETS_DATA = [
 ];
 
 // 光照配置
-export const LIGHT_CONFIG = {
+const LIGHT_CONFIG = {
   ambient: 0x404040,
   directional: {
     color: 0xffffff,
@@ -39,16 +39,16 @@ export const LIGHT_CONFIG = {
 };
 
 // 相机初始位置
-export const CAMERA_POSITION = { x: 0, y: 50, z: 100 };
+const CAMERA_POSITION = { x: 0, y: 50, z: 100 };
 
 // 轨道线配置
-export const ORBIT_CONFIG = {
+const ORBIT_CONFIG = {
   color: 0x555555,
   segments: 64
 };
 
 // 标签配置
-export const LABEL_CONFIG = {
+const LABEL_CONFIG = {
   offsetY: 30,
   background: 'rgba(0, 0, 0, 0.6)',
   border: '1px solid rgba(255, 255, 255, 0.3)'

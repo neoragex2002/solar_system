@@ -41,16 +41,16 @@ function initRenderer() {
 }
 
 function initLights() {
-  scene.add(new THREE.AmbientLight(LIGHT_CONFIG.ambient));
+  scene.add(new THREE.AmbientLight(SolarSystemConfig.LIGHT_CONFIG.ambient));
   
   const directionalLight = new THREE.DirectionalLight(
-    LIGHT_CONFIG.directional.color, 
-    LIGHT_CONFIG.directional.intensity
+    SolarSystemConfig.LIGHT_CONFIG.directional.color, 
+    SolarSystemConfig.LIGHT_CONFIG.directional.intensity
   );
   directionalLight.position.set(
-    LIGHT_CONFIG.directional.position.x,
-    LIGHT_CONFIG.directional.position.y,
-    LIGHT_CONFIG.directional.position.z
+    SolarSystemConfig.LIGHT_CONFIG.directional.position.x,
+    SolarSystemConfig.LIGHT_CONFIG.directional.position.y,
+    SolarSystemConfig.LIGHT_CONFIG.directional.position.z
   );
   scene.add(directionalLight);
 }
@@ -68,9 +68,9 @@ function createSun() {
 
   // 太阳光源
   scene.add(new THREE.PointLight(
-    LIGHT_CONFIG.sunLight.color,
-    LIGHT_CONFIG.sunLight.intensity,
-    LIGHT_CONFIG.sunLight.distance
+    SolarSystemConfig.LIGHT_CONFIG.sunLight.color,
+    SolarSystemConfig.LIGHT_CONFIG.sunLight.intensity,
+    SolarSystemConfig.LIGHT_CONFIG.sunLight.distance
   ));
 
   // 太阳光晕
@@ -123,14 +123,14 @@ function createPlanetLabel(name) {
 }
 
 function createOrbitLine(radius) {
-  const points = Array.from({ length: ORBIT_CONFIG.segments + 1 }, (_, i) => {
+  const points = Array.from({ length: SolarSystemConfig.ORBIT_CONFIG.segments + 1 }, (_, i) => {
     const angle = (i / ORBIT_CONFIG.segments) * Math.PI * 2;
     return new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle));
   });
   
   const orbitLine = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ color: ORBIT_CONFIG.color })
+    new THREE.LineBasicMaterial({ color: SolarSystemConfig.ORBIT_CONFIG.color })
   );
   scene.add(orbitLine);
 }
@@ -174,7 +174,7 @@ function updateLabelPosition(planet) {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - LABEL_CONFIG.offsetY;
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - SolarSystemConfig.LABEL_CONFIG.offsetY;
 
   planet.label.style.display = 'block';
   planet.label.style.left = `${x}px`;
