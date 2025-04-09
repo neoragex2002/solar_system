@@ -3,11 +3,15 @@
  * https://zh.wikipedia.org/wiki/%E8%B3%BD%E5%BE%B7%E5%A8%9C_(%E5%B0%8F%E8%A1%8C%E6%98%9F)#/media/File:Oort_cloud_Sedna_orbit_zh-cn.svg
  */
 
+// TODO: 考虑将全局变量封装到类或模块中以提高可维护性
+// 例如: const solarSystemApp = { scene, camera, renderer, ... };
+
 // 全局配置
 const SolarSystemConfig = {
   SUN_CONFIG: {
     radius: 5,
-    color: 0xffaa00
+    color: 0xffaa00,
+    rotationSpeed: 0.005 // 太阳自转速度
   },
 
   PLANETS_DATA: [
@@ -97,7 +101,7 @@ function init() {
 
   // 创建太阳、行星与小行星带
   sun = createSun();
-  sunLabel = createSunLabel('太阳');
+  sunLabel = createLabel('太阳', 'planet-label sun-label'); // 使用通用标签函数
   planets = createPlanets();
   asteroidBelt = createAsteroidBelt();
   kuiperBelt = createKuiperBelt();
@@ -208,7 +212,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, n
   mesh.position.copy(initialPos);
   scene.add(mesh);
 
-  const label = createPlanetLabel(name);
+  const label = createLabel(name); // 使用通用标签函数
 
   mesh.userData = { semiMajorAxis, eccentricity, name };
 
@@ -222,52 +226,30 @@ function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, n
 
 // 创建小行星带
 function createAsteroidBelt() {
-  const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
-  const particles = new THREE.BufferGeometry();
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const sizes = new Float32Array(count);
-
-  for (let i = 0; i < count; i++) {
-    const semiMajorAxis = innerSemiMajorAxis + Math.random() * (outerSemiMajorAxis - innerSemiMajorAxis);
-    const angle = Math.random() * Math.PI * 2;
-
-    const pos = getOrbitalPosition(semiMajorAxis, eccentricity, angle);
-    positions[i * 3] = pos.x;
-    positions[i * 3 + 1] = pos.y;
-    positions[i * 3 + 2] = pos.z;
-
-    // 随机颜色变化
-    colors[i * 3] = color + Math.random() * 0.2;
-    colors[i * 3 + 1] = color + Math.random() * 0.2;
-    colors[i * 3 + 2] = color + Math.random() * 0.2;
-
-    sizes[i] = size * (0.5 + Math.random() * 0.5);
-  }
-
-  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-  const material = new THREE.PointsMaterial({
-    size: size,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.8
-  });
-
-  const asteroidBelt = new THREE.Points(particles, material);
-  scene.add(asteroidBelt);
-  return asteroidBelt;
+  // 使用通用函数创建小行星带，Z轴分布系数设为较小值（接近平面）
+  return createParticleBelt(SolarSystemConfig.ASTEROID_BELT_CONFIG, 0.1);
 }
 
 // 创建柯伊伯带
 function createKuiperBelt() {
-  const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = SolarSystemConfig.KUIPER_BELT_CONFIG;
+  // 使用通用函数创建柯伊伯带，Z轴分布系数设为1（或根据需要调整）
+  const config = {
+    ...SolarSystemConfig.KUIPER_BELT_CONFIG,
+    opacity: 0.6, // 明确指定透明度
+    sizeAttenuation: true // 明确指定大小衰减
+  };
+  return createParticleBelt(config, 1.0);
+}
+
+// 创建通用粒子带（小行星带/柯伊伯带）
+function createParticleBelt(config, zDistributionMultiplier = 1) {
+  const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = config;
   const particles = new THREE.BufferGeometry();
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   const sizes = new Float32Array(count);
+
+  const baseColor = new THREE.Color(color);
 
   for (let i = 0; i < count; i++) {
     const semiMajorAxis = innerSemiMajorAxis + Math.random() * (outerSemiMajorAxis - innerSemiMajorAxis);
@@ -276,14 +258,19 @@ function createKuiperBelt() {
     const pos = getOrbitalPosition(semiMajorAxis, eccentricity, angle);
     positions[i * 3] = pos.x;
     positions[i * 3 + 1] = pos.y;
-    positions[i * 3 + 2] = pos.z * (0.5 + Math.random()); // 添加Z轴分布
+    positions[i * 3 + 2] = pos.z * (Math.random() * zDistributionMultiplier); // Z轴分布
 
-    // 冰蓝色调变化
-    colors[i * 3] = color + Math.random() * 0.1;
-    colors[i * 3 + 1] = color + Math.random() * 0.1;
-    colors[i * 3 + 2] = color + Math.random() * 0.2;
+    // 颜色随机变化
+    const randomColor = baseColor.clone().offsetHSL(
+      (Math.random() - 0.5) * 0.1, // 色调变化
+      (Math.random() - 0.5) * 0.2, // 饱和度变化
+      (Math.random() - 0.5) * 0.2  // 亮度变化
+    );
+    colors[i * 3] = randomColor.r;
+    colors[i * 3 + 1] = randomColor.g;
+    colors[i * 3 + 2] = randomColor.b;
 
-    sizes[i] = size * (0.5 + Math.random() * 0.5);
+    sizes[i] = size * (0.5 + Math.random() * 0.5); // 大小随机变化
   }
 
   particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -294,14 +281,15 @@ function createKuiperBelt() {
     size: size,
     vertexColors: true,
     transparent: true,
-    opacity: 0.6,
-    sizeAttenuation: true
+    opacity: config.opacity || 0.8, // 使用配置中的透明度，默认为0.8
+    sizeAttenuation: config.sizeAttenuation !== undefined ? config.sizeAttenuation : true // 使用配置中的sizeAttenuation，默认为true
   });
 
-  const kuiperBelt = new THREE.Points(particles, material);
-  scene.add(kuiperBelt);
-  return kuiperBelt;
+  const particleBelt = new THREE.Points(particles, material);
+  scene.add(particleBelt);
+  return particleBelt;
 }
+
 
 // 创建轨道线
 function createOrbitLine(planetData, color) {
@@ -327,22 +315,16 @@ function createOrbitLine(planetData, color) {
   return orbitLine;
 }
 
-// 创建标签
-function createSunLabel(name) {
+// 创建通用标签
+function createLabel(name, className = 'planet-label') {
   const label = document.createElement('div');
-  label.className = 'planet-label sun-label';
+  label.className = className; // 应用基础和特定类名
   label.textContent = name;
+  // 考虑使用 CSS2DRenderer/CSS3DRenderer 以获得更好的性能和集成度
   document.body.appendChild(label);
   return label;
 }
 
-function createPlanetLabel(name) {
-  const label = document.createElement('div');
-  label.className = 'planet-label';
-  label.textContent = name;
-  document.body.appendChild(label);
-  return label;
-}
 
 // 轨道位置计算
 function getOrbitalPosition(semiMajorAxis, eccentricity, angle) {
@@ -378,6 +360,7 @@ function initSpeedControl() {
 }
 
 // 更新位置
+// TODO: 频繁的DOM操作可能影响性能，考虑使用CSS2DRenderer/CSS3DRenderer优化标签。
 function updateSunLabelPosition() {
   const sunWorldPos = new THREE.Vector3();
   sun.getWorldPosition(sunWorldPos);
@@ -396,6 +379,7 @@ function updateSunLabelPosition() {
   sunLabel.style.left = `${x}px`;
 }
 
+// TODO: 频繁的DOM操作可能影响性能，考虑使用CSS2DRenderer/CSS3DRenderer优化标签。
 function updateLabelPosition(planet) {
   const planetWorldPos = new THREE.Vector3();
   planet.mesh.getWorldPosition(planetWorldPos);
@@ -445,8 +429,40 @@ function updatePlanetLabels() {
 
 // 清理函数
 function cleanup() {
+  console.log("Cleaning up resources...");
+
+  // 移除 DOM 元素
   if (sunLabel?.parentNode) sunLabel.parentNode.removeChild(sunLabel);
   planets.forEach(p => p.label?.parentNode?.removeChild(p.label));
+  const speedSlider = document.getElementById('speed-slider');
+  if (speedSlider) {
+      // 尝试移除事件监听器，如果它们是在 initSpeedControl 中添加的
+      // 注意: 需要保存对 updateSpeed 函数的引用才能正确移除
+      // speedSlider.removeEventListener('input', updateSpeed);
+      // speedSlider.removeEventListener('change', updateSpeed);
+      console.warn("Speed slider event listeners might not be removed if 'updateSpeed' reference is lost.");
+  }
+
+
+  // 移除窗口事件监听器
+  window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener('beforeunload', cleanup);
+
+  // TODO: 释放 Three.js 资源 (如果需要更彻底的清理)
+  // scene.traverse(object => {
+  //   if (object.geometry) object.geometry.dispose();
+  //   if (object.material) {
+  //     if (Array.isArray(object.material)) {
+  //       object.material.forEach(material => material.dispose());
+  //     } else {
+  //       object.material.dispose();
+  //     }
+  //   }
+  // });
+  // renderer.dispose();
+  // composer.dispose(); // 如果 EffectComposer 有 dispose 方法
+
+  console.log("Cleanup finished.");
 }
 
 // 窗口尺寸变化处理
@@ -467,7 +483,7 @@ function animate(timestamp) {
   lastTime = timestamp - (deltaTime % frameInterval);
 
   // 更新天体
-  sun.rotation.z += 0.005;
+  sun.rotation.z += SolarSystemConfig.SUN_CONFIG.rotationSpeed * simulationSpeed * 0.1; // 使用配置的速度
   updatePlanetPositions();
   updateAsteroidBelts();
 
