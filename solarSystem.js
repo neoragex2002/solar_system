@@ -205,47 +205,6 @@ function createPlanets() {
   return planets;
 }
 
-function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
-  if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
-    throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
-  }
-  if (typeof eccentricity !== 'number' || eccentricity < 0 || eccentricity >= 1) {
-    throw new Error(`行星 ${name || '未知'} 的 eccentricity 必须在 [0,1) 范围内`);
-  }
-
-  const planet = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 32, 32),
-    new THREE.MeshPhongMaterial({ color })
-  );
-  
-  // 使用开普勒方程计算初始位置
-  const trueAnomaly = 0;
-  const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
-  const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
-  
-  planet.position.set(
-    r * Math.cos(trueAnomaly), // X
-    r * Math.sin(trueAnomaly), // Y
-    0                          // Z
-  );
-  scene.add(planet);
-
-  const label = createPlanetLabel(name);
-  
-  // 将轨道参数存储在mesh的userData中
-  planet.userData = { 
-    semiMajorAxis,
-    eccentricity,
-    name,
-  };
-  
-  return {
-    mesh: planet,
-    label,
-    speed,
-    angle: 0 // 所有行星从近地点开始（θ=0）
-  };
-}
 
 function createSunLabel(name) {
   const label = document.createElement('div');
@@ -261,39 +220,6 @@ function createPlanetLabel(name) {
   label.textContent = name;
   document.body.appendChild(label);
   return label;
-}
-
-function createOrbitLine(planetData, color) {
-  const { semiMajorAxis, eccentricity = 0 } = planetData;
-  if (typeof semiMajorAxis === 'undefined') {
-    throw new Error('必须提供 semiMajorAxis 参数');
-  }
-  const segments = SolarSystemConfig.ORBIT_CONFIG.segments;
-  
-  const points = [];
-  for (let i = 0; i <= segments; i++) {
-    const angle = (i / segments) * Math.PI * 2;
-    // 严格右手坐标系：X右，Y上，Z屏幕外
-    const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
-    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
-    points.push(new THREE.Vector3(
-      r * Math.cos(angle),  // X轴：右侧为正
-      r * Math.sin(angle), // Y轴：上为正
-      0                    // Z轴：屏幕外为正（XY平面运动）
-    ));
-  }
-  
-  const orbitLine = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({
-      color: color || SolarSystemConfig.ORBIT_CONFIG.color,
-      transparent: true,
-      opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity,
-      linewidth: 3
-    })
-  );
-  scene.add(orbitLine);
-  return orbitLine;
 }
 
 function initSpeedControl() {
@@ -317,37 +243,6 @@ function initSpeedControl() {
   speedSlider.addEventListener('change', updateSpeed);
 }
 
-function updatePlanetPositions() {
-  planets.forEach(planet => {
-    const { eccentricity = 0 } = planet;
-    const semiMajorAxis = planet.mesh.userData.semiMajorAxis;
-    if (typeof semiMajorAxis === 'undefined') {
-      console.error('行星缺少 semiMajorAxis 参数', planet.mesh.name || '未知行星');
-      return;
-    }
-    
-    // 简化计算，使用固定角度增量
-    planet.angle += planet.speed * simulationSpeed * 0.01;
-    
-    // 精确计算椭圆轨道位置（考虑初始角度）
-    const trueAnomaly = planet.angle;
-    const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
-    const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
-    
-    // 严格右手坐标系：X右，Y上，Z屏幕外
-    planet.mesh.position.x = r * Math.cos(trueAnomaly);  // X轴：右侧为正
-    planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
-    planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
-    
-    // 归一化角度
-    if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
-    if (planet.angle < 0) planet.angle += Math.PI * 2;
-    
-    planet.mesh.rotation.y += 0.01 * simulationSpeed;
-    updateLabelPosition(planet);
-  });
-}
-
 function updateSunLabelPosition() {
   const sunWorldPos = new THREE.Vector3();
   sun.getWorldPosition(sunWorldPos);
@@ -359,7 +254,7 @@ function updateSunLabelPosition() {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight; // 使用Y坐标
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
 
   sunLabel.style.display = 'block';
   sunLabel.style.top = `${y}px`;
@@ -378,19 +273,19 @@ function updateLabelPosition(planet) {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.z * 0.5) + 0.5) * window.innerHeight - 
-           (planet.labelOffset || SolarSystemConfig.LABEL_CONFIG.offsetY);
+  // 修改这里：使用 screenPos.y 计算 y 坐标
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - 
+            (planet.labelOffset || SolarSystemConfig.LABEL_CONFIG.offsetY);
 
   planet.label.style.display = 'block';
   planet.label.style.left = `${x}px`;
   planet.label.style.top = `${y}px`;
 }
 
-
 function animate(timestamp) {
   requestAnimationFrame(animate);
   
-  // Frame rate limiting
+  // 帧率限制
   const deltaTime = timestamp - lastTime;
   if (deltaTime < frameInterval) return;
   lastTime = timestamp - (deltaTime % frameInterval);
@@ -432,3 +327,78 @@ window.addEventListener('beforeunload', () => {
   });
 });
 
+// Unified orbital position calculator
+function getOrbitalPosition(semiMajorAxis, eccentricity, angle) {
+  const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
+  const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
+  return new THREE.Vector3(
+    r * Math.cos(angle),
+    r * Math.sin(angle),
+    0
+  );
+}
+
+// Create orbit line
+function createOrbitLine(planetData, color) {
+  const { semiMajorAxis, eccentricity = 0 } = planetData;
+  const segments = SolarSystemConfig.ORBIT_CONFIG.segments;
+  const points = [];
+
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * Math.PI * 2;
+    const pos = getOrbitalPosition(semiMajorAxis, eccentricity, angle);
+    points.push(pos);
+  }
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const material = new THREE.LineBasicMaterial({
+    color: color || SolarSystemConfig.ORBIT_CONFIG.color,
+    transparent: true,
+    opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity
+  });
+
+  const orbitLine = new THREE.Line(geometry, material);
+  scene.add(orbitLine);
+  return orbitLine;
+}
+
+// Create a planet object
+function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, name }) {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 32, 32),
+    new THREE.MeshPhongMaterial({ color })
+  );
+
+  const initialPos = getOrbitalPosition(semiMajorAxis, eccentricity, 0);
+  mesh.position.copy(initialPos);
+  scene.add(mesh);
+
+  const label = createPlanetLabel(name);
+
+  // 将半长轴和偏心率存入 userData 中供后续更新时使用
+  mesh.userData = { semiMajorAxis, eccentricity, name };
+
+  return {
+    mesh,
+    label,
+    speed,
+    angle: 0 // 初始真近点角
+  };
+}
+
+// Update planet positions per frame
+function updatePlanetPositions() {
+  planets.forEach(planet => {
+    const semiMajorAxis = planet.mesh.userData.semiMajorAxis;
+    const eccentricity = planet.mesh.userData.eccentricity; // 正确使用存储的偏心率
+
+    planet.angle += planet.speed * simulationSpeed * 0.01;
+    if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
+
+    const pos = getOrbitalPosition(semiMajorAxis, eccentricity, planet.angle);
+    planet.mesh.position.copy(pos);
+    planet.mesh.rotation.y += 0.01 * simulationSpeed;
+
+    updateLabelPosition(planet);
+  });
+}
