@@ -206,8 +206,8 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name,
     new THREE.MeshPhongMaterial({ color })
   );
   
-  // 使用开普勒方程计算初始位置（近地点）
-  const trueAnomaly = 0; // 近地点角度
+  // 使用开普勒方程计算初始位置（考虑initialAngle）
+  const trueAnomaly = initialAngle || 0;
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
   const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
   
@@ -262,10 +262,10 @@ function createOrbitLine(planetData, color) {
   const points = [];
   const initialAngle = planetData.initialAngle || 0;
   for (let i = 0; i <= segments; i++) {
-    const angle = initialAngle + (i / segments) * Math.PI * 2;
+    const angle = (i / segments) * Math.PI * 2;
     // 严格右手坐标系：X右，Y上，Z屏幕外
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
-    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle - initialAngle));
+    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
     points.push(new THREE.Vector3(
       r * Math.cos(angle),  // X轴：右侧为正
       r * Math.sin(angle), // Y轴：上为正
