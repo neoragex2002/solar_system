@@ -102,7 +102,7 @@ function createSun() {
       blending: THREE.AdditiveBlending // 使用叠加混合模式增强效果
     })
   );
-  scene.add(sunGlow);
+  // scene.add(sunGlow);
 
   return { sun, sunGlow };
 }
