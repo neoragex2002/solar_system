@@ -36,7 +36,7 @@ const SolarSystemConfig = {
   CAMERA_POSITION: { x: 0, y: 0, z: 150 },
   ORBIT_CONFIG: { color: 0x555555, segments: 64 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
-  SPEED_CONTROL_CONFIG: { min: 0.1, max: 20, step: 0.1, defaultValue: 1 }
+  SPEED_CONTROL_CONFIG: { min: 0.1, max: 200, step: 0.1, defaultValue: 1 }
 };
 
 // ======================
@@ -193,7 +193,7 @@ function createPlanets() {
   }).filter(Boolean); // 过滤掉创建失败的行星
 }
 
-function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name, initialAngle = 0 }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
   if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
     throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
   }
@@ -206,8 +206,8 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name,
     new THREE.MeshPhongMaterial({ color })
   );
   
-  // 使用开普勒方程计算初始位置（考虑initialAngle）
-  const trueAnomaly = initialAngle || 0;
+  // 使用开普勒方程计算初始位置
+  const trueAnomaly = 0;
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
   const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
   
@@ -225,7 +225,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name,
     semiMajorAxis,
     eccentricity,
     name,
-    initialAngle: initialAngle || 0
+    initialAngle: 0
   };
   
   return {
@@ -257,10 +257,9 @@ function createOrbitLine(planetData, color) {
   if (typeof semiMajorAxis === 'undefined') {
     throw new Error('必须提供 semiMajorAxis 参数');
   }
-  const segments = planetData.orbitSegments || SolarSystemConfig.ORBIT_CONFIG.segments;
+  const segments = SolarSystemConfig.ORBIT_CONFIG.segments;
   
   const points = [];
-  const initialAngle = planetData.initialAngle || 0;
   for (let i = 0; i <= segments; i++) {
     const angle = (i / segments) * Math.PI * 2;
     // 严格右手坐标系：X右，Y上，Z屏幕外
