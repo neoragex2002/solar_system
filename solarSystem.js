@@ -23,11 +23,11 @@ const { sun, sunGlow } = createSun();
 const planets = createPlanets();
 
 // 初始化后期处理
-let composer;
+let composer, bloomPass;
 function initPostProcessing() {
     const renderScene = new THREE.RenderPass(scene, camera);
     
-    const bloomPass = new THREE.UnrealBloomPass(
+    bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
         2.5,   // 增强发光强度
         0.6,   // 增大光晕半径 
@@ -37,11 +37,6 @@ function initPostProcessing() {
     composer = new THREE.EffectComposer(renderer);
     composer.addPass(renderScene);
     composer.addPass(bloomPass);
-    
-    // 设置太阳作为光源
-    const sunLight = new THREE.Vector3();
-    sun.getWorldPosition(sunLight);
-    bloomPass.lightPosition.copy(sunLight);
 }
 initPostProcessing();
 
@@ -223,9 +218,14 @@ function animate() {
   sun.rotation.y += 0.005;
   updatePlanetPositions();
   
-  controls.update();
+  // 更新太阳光晕位置
+  if (bloomPass) {
+    const sunLight = new THREE.Vector3();
+    sun.getWorldPosition(sunLight);
+    bloomPass.lightPosition.copy(sunLight);
+  }
   
-  // 渲染场景
+  controls.update();
   composer.render();
 }
 
