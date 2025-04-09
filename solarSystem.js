@@ -29,9 +29,9 @@ function initPostProcessing() {
     
     const bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        1.5,   // strength
-        0.4,   // radius
-        0.85   // threshold
+        2.5,   // 增强发光强度
+        0.6,   // 增大光晕半径 
+        0.7    // 降低阈值让更多区域发光
     );
     
     composer = new THREE.EffectComposer(renderer);
@@ -96,13 +96,14 @@ function createSun() {
     SolarSystemConfig.LIGHT_CONFIG.sunLight.distance
   ));
 
-  // 太阳光晕
+  // 增强的太阳光晕
   const sunGlow = new THREE.Mesh(
-    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.glow.radius, 64, 64),
+    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.glow.radius * 1.2, 64, 64),
     new THREE.MeshBasicMaterial({
       color: SolarSystemConfig.SUN_CONFIG.glow.color,
       transparent: true,
-      opacity: SolarSystemConfig.SUN_CONFIG.glow.opacity
+      opacity: SolarSystemConfig.SUN_CONFIG.glow.opacity,
+      blending: THREE.AdditiveBlending // 使用叠加混合模式增强效果
     })
   );
   scene.add(sunGlow);
@@ -205,8 +206,14 @@ function updateLabelPosition(planet) {
 }
 
 function pulseSunGlow() {
-  const scale = 1 + Math.sin(Date.now() * 0.001) * SolarSystemConfig.SUN_CONFIG.glow.pulseScale;
+  const time = Date.now() * 0.001;
+  // 更自然的脉动效果
+  const scale = 1 + Math.sin(time) * 0.1 + Math.sin(time * 0.5) * 0.05;
   sunGlow.scale.set(scale, scale, scale);
+  
+  // 动态调整光晕透明度
+  const opacity = 0.7 + Math.sin(time * 1.5) * 0.1;
+  sunGlow.material.opacity = opacity;
 }
 
 function animate() {
