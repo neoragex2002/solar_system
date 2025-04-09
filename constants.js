@@ -140,7 +140,7 @@ const LIGHT_CONFIG = {
 };
 
 // 相机初始位置
-const CAMERA_POSITION = { x: 0, y: 0, z: 150 }; // Z轴向上视角
+const CAMERA_POSITION = { x: 0, y: -150, z: 50 }; // 从上方斜视角
 
 // 轨道线配置
 const ORBIT_CONFIG = {
