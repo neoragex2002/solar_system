@@ -102,8 +102,8 @@ function createPlanets() {
   // Add Ceres (dwarf planet in asteroid belt)
   const ceresData = {
     radius: 0.08,  // 稍微放大以便观察
-    orbitRadius: 3.5,  // 调整到更明显的位置
-    speed: 0.0004,  // 稍慢于火星
+    orbitRadius: 30,  // 调整到更明显的位置
+    speed: 0.012,  // 稍慢于火星
     color: 0xCCCCCC,
     name: '谷神星',
     orbitColor: 0x888888  // 添加轨道颜色
