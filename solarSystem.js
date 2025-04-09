@@ -144,13 +144,18 @@ function createPlanetLabel(name) {
 function createOrbitLine(planetData, color) {
   const semiMajorAxis = planetData.semiMajorAxis || planetData.orbitRadius;
   const eccentricity = planetData.eccentricity || 0;
-  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity);
   
-  const points = Array.from({ length: SolarSystemConfig.ORBIT_CONFIG.segments + 1 }, (_, i) => {
+  const points = [];
+  for (let i = 0; i <= SolarSystemConfig.ORBIT_CONFIG.segments; i++) {
     const angle = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
+    // 使用开普勒轨道方程计算半径
     const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
-    return new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle));
-  });
+    points.push(new THREE.Vector3(
+      radius * Math.cos(angle),
+      0,
+      radius * Math.sin(angle)
+    );
+  }
   
   const orbitLine = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
@@ -185,10 +190,17 @@ function updatePlanetPositions() {
     planet.angle += planet.speed * simulationSpeed;
     const semiMajorAxis = planet.semiMajorAxis || planet.orbitRadius;
     const eccentricity = planet.eccentricity || 0;
+    
+    // 使用与轨道线相同的计算公式
     const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
     
     planet.mesh.position.x = radius * Math.cos(planet.angle);
     planet.mesh.position.z = radius * Math.sin(planet.angle);
+    
+    // 确保角度在0-2π范围内
+    if (planet.angle > Math.PI * 2) {
+      planet.angle -= Math.PI * 2;
+    }
     planet.mesh.rotation.y += 0.01 * simulationSpeed;
 
     updateLabelPosition(planet);
