@@ -3,6 +3,9 @@
 // 初始化场景
 const scene = new THREE.Scene();
 
+// 创建太阳系
+const { sun, sunLabel } = createSun();
+
 // 添加坐标系辅助（红=X，绿=Y，蓝=Z）
 const axesHelper = new THREE.AxesHelper(15); // 更大的坐标系
 axesHelper.lineWidth = 3; // 更粗的线条
@@ -25,8 +28,6 @@ controls.update();
 // 初始化光照
 initLights();
 
-// 创建太阳系
-const { sun, sunLabel } = createSun();
 const planets = createPlanets();
 
 // 初始化后期处理
