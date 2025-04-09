@@ -153,8 +153,8 @@ function createOrbitLine(planetData, color) {
     const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
     points.push(new THREE.Vector3(
       r * Math.cos(angle),
-      r * Math.sin(angle),
-      0  // Z轴设为0，在XY平面运动
+      -r * Math.sin(angle),  // 反转Y轴方向
+      0  // Z轴设为0
     ));
   }
   
@@ -204,7 +204,7 @@ function updatePlanetPositions() {
     const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
     // 保持与轨道线相同的坐标系
     planet.mesh.position.x = r * Math.cos(planet.angle);
-    planet.mesh.position.y = r * Math.sin(planet.angle);
+    planet.mesh.position.y = -r * Math.sin(planet.angle); // 反转Y轴方向
     planet.mesh.position.z = 0; // 确保在XY平面
     
     // 归一化角度
@@ -246,7 +246,7 @@ function updateLabelPosition(planet) {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - 
+  const y = (-(-screenPos.y * 0.5) + 0.5) * window.innerHeight - 
            (planet.labelOffset || SolarSystemConfig.LABEL_CONFIG.offsetY);
 
   planet.label.style.display = 'block';
