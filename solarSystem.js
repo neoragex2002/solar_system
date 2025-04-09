@@ -144,32 +144,37 @@ function createPlanetLabel(name) {
 function createOrbitLine(planetData, color) {
   const semiMajorAxis = planetData.semiMajorAxis || planetData.orbitRadius;
   const eccentricity = planetData.eccentricity || 0;
+  const segments = planetData.orbitSegments || SolarSystemConfig.ORBIT_CONFIG.segments;
   
   const points = [];
-  for (let i = 0; i <= SolarSystemConfig.ORBIT_CONFIG.segments; i++) {
-    const trueAnomaly = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
-    // 使用极坐标方程计算椭圆
-    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly));
-    const x = r * Math.cos(trueAnomaly);
-    const z = r * Math.sin(trueAnomaly);
-    points.push(new THREE.Vector3(x, 0, z));
+  for (let i = 0; i <= segments; i++) {
+    const angle = (i / segments) * Math.PI * 2;
+    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
+    points.push(new THREE.Vector3(
+      r * Math.cos(angle),
+      0,
+      r * Math.sin(angle)
+    ));
   }
   
   const orbitLine = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ 
+    new THREE.LineBasicMaterial({
       color: color || SolarSystemConfig.ORBIT_CONFIG.color,
       transparent: true,
-      opacity: color ? 0.5 : SolarSystemConfig.ORBIT_CONFIG.opacity,
-      linewidth: 1
+      opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity,
+      linewidth: 2
     })
   );
   scene.add(orbitLine);
+  return orbitLine;
 }
 
 function initSpeedControl() {
   const speedSlider = document.getElementById('speed-slider');
   const speedValue = document.getElementById('speed-value');
+
+  if (!speedSlider || !speedValue) return;
 
   speedSlider.min = SolarSystemConfig.SPEED_CONTROL_CONFIG.min;
   speedSlider.max = SolarSystemConfig.SPEED_CONTROL_CONFIG.max;
@@ -177,35 +182,33 @@ function initSpeedControl() {
   speedSlider.value = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
   speedValue.textContent = `${SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue}x`;
 
-  speedSlider.addEventListener('input', (e) => {
-    simulationSpeed = parseFloat(e.target.value);
+  const updateSpeed = () => {
+    simulationSpeed = parseFloat(speedSlider.value);
     speedValue.textContent = `${simulationSpeed.toFixed(1)}x`;
-  });
+  };
+
+  speedSlider.addEventListener('input', updateSpeed);
+  speedSlider.addEventListener('change', updateSpeed);
 }
 
 function updatePlanetPositions() {
   planets.forEach(planet => {
-    // 使用开普勒第二定律计算角度增量
     const semiMajorAxis = planet.semiMajorAxis || planet.orbitRadius;
     const eccentricity = planet.eccentricity || 0;
     
-    // 计算当前半径
+    // 简化计算，使用固定角度增量
+    planet.angle += planet.speed * simulationSpeed * 0.01;
+    
+    // 计算椭圆轨道位置
     const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
-    
-    // 根据面积速度恒定原理调整角度增量
-    const deltaAngle = planet.speed * simulationSpeed * (1 / (r * r));
-    planet.angle += deltaAngle;
-    
-    // 更新位置
     planet.mesh.position.x = r * Math.cos(planet.angle);
     planet.mesh.position.z = r * Math.sin(planet.angle);
     
-    // 确保角度在0-2π范围内
-    if (planet.angle > Math.PI * 2) {
-      planet.angle -= Math.PI * 2;
-    }
+    // 归一化角度
+    if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
+    if (planet.angle < 0) planet.angle += Math.PI * 2;
+    
     planet.mesh.rotation.y += 0.01 * simulationSpeed;
-
     updateLabelPosition(planet);
   });
 }

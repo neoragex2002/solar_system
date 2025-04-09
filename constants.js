@@ -111,16 +111,16 @@ const PLANETS_DATA = [
     orbitColor: 0x9b59b6
   },
   { 
-    radius: 0.15,  // 进一步放大以便观察
+    radius: 0.2,  // 增大可见性
     orbitRadius: 76.1,
     semiMajorAxis: 76.1,
     eccentricity: 0.855,
-    speed: 0.00002,  // 更准确的速度
+    speed: 0.0001,  // 适当加快速度
     color: 0xFF6633, 
     name: "塞德娜",
     orbitColor: 0xFF6633,
     labelOffset: 40,
-    orbitSegments: 128  // 增加轨道分段数
+    orbitSegments: 256  // 更高精度的轨道
   }
 ];
 
