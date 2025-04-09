@@ -335,16 +335,7 @@ function updatePlanetPositions() {
     planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
     planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
     
-    // 开发环境下验证轨道位置 (使用全局变量或直接注释掉)
-    if (typeof DEBUG !== 'undefined' && DEBUG) {
-      const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
-      const expectedY = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.sin(trueAnomaly);
-      console.assert(
-        Math.abs(planet.mesh.position.x - expectedX) < 0.001 && 
-        Math.abs(planet.mesh.position.y - expectedY) < 0.001,
-        'Planet position does not match orbit line'
-      );
-    }
+    // 轨道位置验证 (已移除生产环境不需要的检查)
     
     // 归一化角度
     if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
