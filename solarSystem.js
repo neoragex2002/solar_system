@@ -35,9 +35,9 @@ const SolarSystemConfig = {
   },
 
   CAMERA_POSITION: { x: 0, y: 0, z: 150 },
-  ORBIT_CONFIG: { color: 0x555555, segments: 360, opacity: 0.7 },
+  ORBIT_CONFIG: { color: 0x555555, segments: 64, opacity: 0.7 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
-  SPEED_CONTROL_CONFIG: { min: 0.1, max: 500, step: 0.1, defaultValue: 1 }
+  SPEED_CONTROL_CONFIG: { min: 1, max: 1000, step: 1, defaultValue: 1 }
 };
 
 // ======================
