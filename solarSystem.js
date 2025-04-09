@@ -327,7 +327,9 @@ function createLabel(name, className = 'planet-label') {
 
 
 // 轨道位置计算
+// TODO: 当前计算仅考虑二维平面 (z=0)。如需模拟轨道倾角，需要修改此函数。
 function getOrbitalPosition(semiMajorAxis, eccentricity, angle) {
+  // 基于开普勒轨道方程计算距离太阳中心的距离 r
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
   const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
   return new THREE.Vector3(
