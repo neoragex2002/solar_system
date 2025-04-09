@@ -147,14 +147,12 @@ function createOrbitLine(planetData, color) {
   
   const points = [];
   for (let i = 0; i <= SolarSystemConfig.ORBIT_CONFIG.segments; i++) {
-    const angle = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
-    // 使用开普勒轨道方程计算半径
-    const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
-    points.push(new THREE.Vector3(
-      radius * Math.cos(angle),
-      0,
-      radius * Math.sin(angle)
-    ));
+    const trueAnomaly = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
+    // 使用极坐标方程计算椭圆
+    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly));
+    const x = r * Math.cos(trueAnomaly);
+    const z = r * Math.sin(trueAnomaly);
+    points.push(new THREE.Vector3(x, 0, z));
   }
   
   const orbitLine = new THREE.Line(
@@ -187,15 +185,20 @@ function initSpeedControl() {
 
 function updatePlanetPositions() {
   planets.forEach(planet => {
-    planet.angle += planet.speed * simulationSpeed;
+    // 使用开普勒第二定律计算角度增量
     const semiMajorAxis = planet.semiMajorAxis || planet.orbitRadius;
     const eccentricity = planet.eccentricity || 0;
     
-    // 使用与轨道线相同的计算公式
-    const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
+    // 计算当前半径
+    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
     
-    planet.mesh.position.x = radius * Math.cos(planet.angle);
-    planet.mesh.position.z = radius * Math.sin(planet.angle);
+    // 根据面积速度恒定原理调整角度增量
+    const deltaAngle = planet.speed * simulationSpeed * (1 / (r * r));
+    planet.angle += deltaAngle;
+    
+    // 更新位置
+    planet.mesh.position.x = r * Math.cos(planet.angle);
+    planet.mesh.position.z = r * Math.sin(planet.angle);
     
     // 确保角度在0-2π范围内
     if (planet.angle > Math.PI * 2) {
