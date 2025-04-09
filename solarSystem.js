@@ -29,9 +29,9 @@ function initPostProcessing() {
     
     bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        2.5,   // strength
-        0.6,   // radius
-        0.7    // threshold
+        0.5,   // strength
+        1,   // radius
+        0.3    // threshold
     );
     bloomPass.enabled = true;
     
