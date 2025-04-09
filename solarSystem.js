@@ -69,6 +69,12 @@ const scene = new THREE.Scene();
 const camera = initCamera();
 const renderer = initRenderer();
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
+// Configure middle mouse button for panning
+controls.mouseButtons = {
+  LEFT: THREE.MOUSE.ROTATE,
+  MIDDLE: THREE.MOUSE.PAN,
+  RIGHT: THREE.MOUSE.DOLLY
+};
 
 // 太阳系对象
 const { sun, sunLabel } = createSun();
