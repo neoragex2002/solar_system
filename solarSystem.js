@@ -1,6 +1,7 @@
 /**
  * 太阳系模拟 - 主配置文件
  */
+const DEBUG = false; // 设为true启用开发调试
 const SolarSystemConfig = {
   SUN_CONFIG: {
     radius: 5,
@@ -334,8 +335,8 @@ function updatePlanetPositions() {
     planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
     planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
     
-    // 开发环境下验证轨道位置
-    if (process.env.NODE_ENV === 'development') {
+    // 开发环境下验证轨道位置 (使用全局变量或直接注释掉)
+    if (typeof DEBUG !== 'undefined' && DEBUG) {
       const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
       const expectedY = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.sin(trueAnomaly);
       console.assert(
