@@ -12,11 +12,11 @@ const renderer = initRenderer();
 document.body.appendChild(renderer.domElement);
 
 // 初始化后期处理
-let composer, bloomPass;
+let composer;
 function initPostProcessing() {
     const renderScene = new THREE.RenderPass(scene, camera);
     
-    bloomPass = new THREE.UnrealBloomPass(
+    const bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
         1.5,   // strength
         0.4,   // radius
@@ -26,6 +26,11 @@ function initPostProcessing() {
     composer = new THREE.EffectComposer(renderer);
     composer.addPass(renderScene);
     composer.addPass(bloomPass);
+    
+    // 设置太阳作为光源
+    const sunLight = new THREE.Vector3();
+    sun.getWorldPosition(sunLight);
+    bloomPass.lightPosition.copy(sunLight);
 }
 initPostProcessing();
 
@@ -213,8 +218,7 @@ function animate() {
   
   controls.update();
   
-  // 更新太阳光晕位置用于光晕效果
-  sunGlow.getWorldPosition(bloomPass.lightPosition);
+  // 渲染场景
   composer.render();
 }
 
