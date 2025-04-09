@@ -99,12 +99,9 @@ function createSun() {
 }
 
 function createPlanets() {
-  // Use standard planets from PLANETS_DATA
-  const allPlanets = PLANETS_DATA;
-  
-  return allPlanets.map(planetData => {
+  return PLANETS_DATA.map(planetData => {
     const planet = createPlanet(planetData);
-    createOrbitLine(planetData.orbitRadius, planetData.orbitColor);
+    createOrbitLine(planetData, planetData.orbitColor);
     return planet;
   });
 }
@@ -160,7 +157,8 @@ function createOrbitLine(planetData, color) {
     new THREE.LineBasicMaterial({ 
       color: color || SolarSystemConfig.ORBIT_CONFIG.color,
       transparent: true,
-      opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity
+      opacity: color ? 0.5 : SolarSystemConfig.ORBIT_CONFIG.opacity,
+      linewidth: 1
     })
   );
   scene.add(orbitLine);

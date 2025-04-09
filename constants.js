@@ -30,15 +30,87 @@ const PLANETS_DATA = [
     color: 0xe6c229, 
     name: "金星" 
   },
-  { radius: 0.6, orbitRadius: 20, speed: 0.02, color: 0x3498db, name: "地球" },
-  { radius: 0.4, orbitRadius: 25, speed: 0.015, color: 0xe74c3c, name: "火星" },
+  { 
+    radius: 0.6, 
+    orbitRadius: 20, 
+    semiMajorAxis: 20,
+    eccentricity: 0.0167,
+    speed: 0.02, 
+    color: 0x3498db, 
+    name: "地球",
+    orbitColor: 0x3498db
+  },
+  { 
+    radius: 0.4, 
+    orbitRadius: 25, 
+    semiMajorAxis: 25,
+    eccentricity: 0.0934,
+    speed: 0.015, 
+    color: 0xe74c3c, 
+    name: "火星",
+    orbitColor: 0xe74c3c
+  },
   { radius: 0.08, orbitRadius: 30, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888 },
-  { radius: 1.3, orbitRadius: 35, speed: 0.01, color: 0xe67e22, name: "木星" },
-  { radius: 1.1, orbitRadius: 45, speed: 0.008, color: 0xf1c40f, name: "土星" },
-  { radius: 0.9, orbitRadius: 55, speed: 0.006, color: 0x1abc9c, name: "天王星" },
-  { radius: 0.8, orbitRadius: 65, speed: 0.004, color: 0x3498db, name: "海王星" },
-  { radius: 0.3, orbitRadius: 75, speed: 0.002, color: 0x9b59b6, name: "冥王星" },
-  { radius: 0.08, orbitRadius: 76.1, speed: 0.00002, color: 0xFF6633, name: "塞德娜" }
+  { 
+    radius: 1.3, 
+    orbitRadius: 35, 
+    semiMajorAxis: 35,
+    eccentricity: 0.0484,
+    speed: 0.01, 
+    color: 0xe67e22, 
+    name: "木星",
+    orbitColor: 0xe67e22
+  },
+  { 
+    radius: 1.1, 
+    orbitRadius: 45, 
+    semiMajorAxis: 45,
+    eccentricity: 0.0542,
+    speed: 0.008, 
+    color: 0xf1c40f, 
+    name: "土星",
+    orbitColor: 0xf1c40f
+  },
+  { 
+    radius: 0.9, 
+    orbitRadius: 55, 
+    semiMajorAxis: 55,
+    eccentricity: 0.0472,
+    speed: 0.006, 
+    color: 0x1abc9c, 
+    name: "天王星",
+    orbitColor: 0x1abc9c
+  },
+  { 
+    radius: 0.8, 
+    orbitRadius: 65, 
+    semiMajorAxis: 65,
+    eccentricity: 0.0086,
+    speed: 0.004, 
+    color: 0x3498db, 
+    name: "海王星",
+    orbitColor: 0x3498db
+  },
+  { 
+    radius: 0.3, 
+    orbitRadius: 75, 
+    semiMajorAxis: 75,
+    eccentricity: 0.2488,
+    speed: 0.002, 
+    color: 0x9b59b6, 
+    name: "冥王星",
+    orbitColor: 0x9b59b6
+  },
+  { 
+    radius: 0.08, 
+    orbitRadius: 76.1, 
+    semiMajorAxis: 76.1,
+    eccentricity: 0.855,
+    speed: 0.00002, 
+    color: 0xFF6633, 
+    name: "塞德娜",
+    orbitColor: 0xFF6633
+  }
 ];
 
 // 光照配置
