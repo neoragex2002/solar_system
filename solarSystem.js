@@ -37,7 +37,16 @@ const SolarSystemConfig = {
   CAMERA_POSITION: { x: 0, y: 0, z: 150 },
   ORBIT_CONFIG: { color: 0x555555, segments: 64, opacity: 0.7 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
-  SPEED_CONTROL_CONFIG: { min: 1, max: 1000, step: 1, defaultValue: 1 }
+  SPEED_CONTROL_CONFIG: { min: 1, max: 1000, step: 1, defaultValue: 1 },
+  
+  ASTEROID_BELT_CONFIG: {
+    count: 2000,
+    innerRadius: 21,  // 内半径(2.1 AU)
+    outerRadius: 33,  // 外半径(3.3 AU)
+    color: 0x888888,
+    size: 0.1,
+    rotationSpeed: 0.001
+  }
 };
 
 // ======================
@@ -52,6 +61,47 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 // 太阳系对象
 const { sun, sunLabel } = createSun();
+function createAsteroidBelt() {
+  const { count, innerRadius, outerRadius, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
+  const particles = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+
+  for (let i = 0; i < count; i++) {
+    // 在X-Y平面随机分布
+    const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+    const angle = Math.random() * Math.PI * 2;
+    
+    positions[i * 3] = radius * Math.cos(angle);
+    positions[i * 3 + 1] = 0; // 保持Z坐标为0，确保在X-Y平面
+    positions[i * 3 + 2] = radius * Math.sin(angle);
+
+    // 随机颜色变化
+    colors[i * 3] = color + Math.random() * 0.2;
+    colors[i * 3 + 1] = color + Math.random() * 0.2;
+    colors[i * 3 + 2] = color + Math.random() * 0.2;
+
+    sizes[i] = size * (0.5 + Math.random() * 0.5);
+  }
+
+  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  const material = new THREE.PointsMaterial({
+    size: size,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8
+  });
+
+  const asteroidBelt = new THREE.Points(particles, material);
+  scene.add(asteroidBelt);
+  return asteroidBelt;
+}
+
+const asteroidBelt = createAsteroidBelt();
 const planets = createPlanets();
 if (!planets || planets.length === 0) {
   console.error('Failed to create planets!');
@@ -285,6 +335,11 @@ function updateLabelPosition(planet) {
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
+  
+  // 小行星带旋转
+  if (asteroidBelt) {
+    asteroidBelt.rotation.y += SolarSystemConfig.ASTEROID_BELT_CONFIG.rotationSpeed * simulationSpeed;
+  }
   
   // 帧率限制
   const deltaTime = timestamp - lastTime;
