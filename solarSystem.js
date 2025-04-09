@@ -3,6 +3,12 @@
 // 初始化场景
 const scene = new THREE.Scene();
 
+// 添加坐标系辅助（红=X，绿=Y，蓝=Z）
+const axesHelper = new THREE.AxesHelper(15); // 更大的坐标系
+axesHelper.lineWidth = 3; // 更粗的线条
+axesHelper.position.copy(sun.position); // 与太阳中心对齐
+scene.add(axesHelper);
+
 // 初始化相机
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 0, 30); // 从正前方看向XY平面
@@ -73,6 +79,7 @@ function initLights() {
 
 function createSun() {
   const sun = new THREE.Mesh(
+    // 太阳几何体
     new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.radius, 64, 64),
     new THREE.MeshBasicMaterial({
       color: SolarSystemConfig.SUN_CONFIG.color,
