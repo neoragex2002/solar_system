@@ -34,7 +34,7 @@ const SolarSystemConfig = {
   },
 
   CAMERA_POSITION: { x: 0, y: 0, z: 150 },
-  ORBIT_CONFIG: { color: 0x555555, segments: 64, opacity: 0.7 },
+  ORBIT_CONFIG: { color: 0x555555, segments: 360, opacity: 0.7 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
   SPEED_CONTROL_CONFIG: { min: 0.1, max: 200, step: 0.1, defaultValue: 1 }
 };
@@ -140,7 +140,7 @@ function initLights() {
   );
   directionalLight.position.set(10, 10, 10);
   scene.add(directionalLight);
-  
+
   // 太阳光
   scene.add(new THREE.PointLight(
     SolarSystemConfig.LIGHT_CONFIG.sunLight.color,
@@ -198,7 +198,7 @@ function createPlanets() {
   }).filter(Boolean); // 过滤掉创建失败的行星
 }
 
-function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name, initialAngle = 0 }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
   if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
     throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
   }
@@ -211,8 +211,8 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name,
     new THREE.MeshPhongMaterial({ color })
   );
   
-  // 使用开普勒方程计算初始位置（考虑initialAngle）
-  const trueAnomaly = initialAngle;
+  // 使用开普勒方程计算初始位置
+  const trueAnomaly = 0;
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
   const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
   
@@ -230,7 +230,6 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name,
     semiMajorAxis,
     eccentricity,
     name,
-    initialAngle: 0
   };
   
   return {
@@ -283,7 +282,7 @@ function createOrbitLine(planetData, color) {
       color: color || SolarSystemConfig.ORBIT_CONFIG.color,
       transparent: true,
       opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity,
-      linewidth: 2
+      linewidth: 3
     })
   );
   scene.add(orbitLine);
@@ -324,8 +323,7 @@ function updatePlanetPositions() {
     planet.angle += planet.speed * simulationSpeed * 0.01;
     
     // 精确计算椭圆轨道位置（考虑初始角度）
-    const initialAngle = planet.mesh.userData.initialAngle || 0;
-    const trueAnomaly = initialAngle + planet.angle;
+    const trueAnomaly = planet.angle;
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
     const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
     
@@ -333,7 +331,6 @@ function updatePlanetPositions() {
     planet.mesh.position.x = r * Math.cos(trueAnomaly);  // X轴：右侧为正
     planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
     planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
-    
     
     // 归一化角度
     if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
