@@ -101,11 +101,12 @@ function createSun() {
 function createPlanets() {
   // Add Ceres (dwarf planet in asteroid belt)
   const ceresData = {
-    radius: 0.05,
-    orbitRadius: 2.77,
-    speed: 0.0005,
+    radius: 0.08,  // 稍微放大以便观察
+    orbitRadius: 3.5,  // 调整到更明显的位置
+    speed: 0.0004,  // 稍慢于火星
     color: 0xCCCCCC,
-    name: '谷神星'
+    name: '谷神星',
+    orbitColor: 0x888888  // 添加轨道颜色
   };
   
   // Add Sedna (distant trans-Neptunian object)
@@ -122,7 +123,7 @@ function createPlanets() {
   
   return allPlanets.map(planetData => {
     const planet = createPlanet(planetData);
-    createOrbitLine(planetData.orbitRadius);
+    createOrbitLine(planetData.orbitRadius, planetData.orbitColor);
     return planet;
   });
 }
@@ -162,7 +163,7 @@ function createPlanetLabel(name) {
   return label;
 }
 
-function createOrbitLine(radius) {
+function createOrbitLine(radius, color) {
   const points = Array.from({ length: SolarSystemConfig.ORBIT_CONFIG.segments + 1 }, (_, i) => {
     const angle = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
     return new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle));
@@ -170,7 +171,11 @@ function createOrbitLine(radius) {
   
   const orbitLine = new THREE.Line(
     new THREE.BufferGeometry().setFromPoints(points),
-    new THREE.LineBasicMaterial({ color: SolarSystemConfig.ORBIT_CONFIG.color })
+    new THREE.LineBasicMaterial({ 
+      color: color || SolarSystemConfig.ORBIT_CONFIG.color,
+      transparent: true,
+      opacity: color ? 0.7 : SolarSystemConfig.ORBIT_CONFIG.opacity
+    })
   );
   scene.add(orbitLine);
 }
