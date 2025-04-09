@@ -11,6 +11,17 @@ camera.position.set(CAMERA_POSITION.x, CAMERA_POSITION.y, CAMERA_POSITION.z);
 const renderer = initRenderer();
 document.body.appendChild(renderer.domElement);
 
+// 初始化控制器
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.update();
+
+// 初始化光照
+initLights();
+
+// 创建太阳系
+const { sun, sunGlow } = createSun();
+const planets = createPlanets();
+
 // 初始化后期处理
 let composer;
 function initPostProcessing() {
@@ -33,17 +44,6 @@ function initPostProcessing() {
     bloomPass.lightPosition.copy(sunLight);
 }
 initPostProcessing();
-
-// 初始化控制器
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.update();
-
-// 初始化光照
-initLights();
-
-// 创建太阳系
-const { sun, sunGlow } = createSun();
-const planets = createPlanets();
 
 // 初始化速度控制
 let simulationSpeed = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
