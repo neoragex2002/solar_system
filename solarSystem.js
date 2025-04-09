@@ -68,8 +68,13 @@ initPostProcessing();
 let simulationSpeed = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
 initSpeedControl();
 
+// 帧率控制变量
+let lastTime = 0;
+const frameRate = 60;
+const frameInterval = 1000 / frameRate;
+
 // 启动动画循环
-animate();
+animate(performance.now());
 
 // ======================
 // 初始化函数
@@ -387,10 +392,6 @@ function updateLabelPosition(planet) {
   planet.label.style.top = `${y}px`;
 }
 
-
-let lastTime = 0;
-const frameRate = 60;
-const frameInterval = 1000 / frameRate;
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
