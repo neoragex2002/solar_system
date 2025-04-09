@@ -125,8 +125,11 @@ function createPlanets() {
 }
 
 function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
-  if (typeof semiMajorAxis === 'undefined') {
-    throw new Error('必须提供 semiMajorAxis 参数');
+  if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
+    throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
+  }
+  if (typeof eccentricity !== 'number' || eccentricity < 0 || eccentricity >= 1) {
+    throw new Error(`行星 ${name || '未知'} 的 eccentricity 必须在 [0,1) 范围内`);
   }
 
   const planet = new THREE.Mesh(
@@ -147,6 +150,13 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
   scene.add(planet);
 
   const label = createPlanetLabel(name);
+  
+  // 将轨道参数存储在mesh的userData中
+  planet.userData = { 
+    semiMajorAxis,
+    eccentricity,
+    name
+  };
   
   return {
     mesh: planet,
@@ -228,9 +238,10 @@ function initSpeedControl() {
 
 function updatePlanetPositions() {
   planets.forEach(planet => {
-    const { semiMajorAxis, eccentricity = 0 } = planet;
+    const { eccentricity = 0 } = planet;
+    const semiMajorAxis = planet.mesh.userData.semiMajorAxis;
     if (typeof semiMajorAxis === 'undefined') {
-      console.error('行星缺少 semiMajorAxis 参数', planet);
+      console.error('行星缺少 semiMajorAxis 参数', planet.mesh.name || '未知行星');
       return;
     }
     
