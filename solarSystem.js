@@ -41,8 +41,9 @@ const SolarSystemConfig = {
   
   ASTEROID_BELT_CONFIG: {
     count: 1000,
-    innerRadius: 26,  // 内半径(2.1 AU)
-    outerRadius: 34,  // 外半径(3.3 AU)
+    innerRadius: 26,  // 内半径(2.6 AU)
+    outerRadius: 34,  // 外半径(3.4 AU)
+    eccentricity: 0.1, // 与其他行星一致的偏心率参数
     color: 0x888888,
     size: 0.1,
     rotationSpeed: 0.01
@@ -62,7 +63,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 // 太阳系对象
 const { sun, sunLabel } = createSun();
 function createAsteroidBelt() {
-  const { count, innerRadius, outerRadius, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
+  const { count, innerRadius, outerRadius, eccentricity, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
   const particles = new THREE.BufferGeometry();
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
@@ -73,9 +74,12 @@ function createAsteroidBelt() {
     const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
     const angle = Math.random() * Math.PI * 2;
     
-    positions[i * 3] = radius * Math.cos(angle);
-    positions[i * 3 + 1] = radius * Math.sin(angle);
-    positions[i * 3 + 2] = 0; // 保持Z坐标为0，确保在X-Y平面
+    // 使用与行星相同的轨道计算公式
+    const semiLatusRectum = radius * (1 - 0.1 * 0.1); // 假设小行星带偏心率0.1
+    const r = semiLatusRectum / (1 + 0.1 * Math.cos(angle));
+    positions[i * 3] = r * Math.cos(angle);
+    positions[i * 3 + 1] = r * Math.sin(angle);
+    positions[i * 3 + 2] = 0;
 
     // 随机颜色变化
     colors[i * 3] = color + Math.random() * 0.2;
