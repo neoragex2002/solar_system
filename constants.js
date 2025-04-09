@@ -35,7 +35,8 @@ const PLANETS_DATA = [
     speed: 0.02, 
     color: 0x3498db, 
     name: "地球",
-    orbitColor: 0x3498db
+    orbitColor: 0x3498db,
+    initialAngle: 0 // 地球初始位置设为近地点
   },
   { 
     radius: 0.4,

@@ -162,7 +162,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
     mesh: planet,
     label,
     speed,
-    angle: index * (2 * Math.PI / PLANETS_DATA.length) // 等间距分布
+    angle: 0 // 所有行星从近地点开始（θ=0）
   };
 }
 
