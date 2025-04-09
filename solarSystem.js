@@ -1,5 +1,6 @@
 /**
  * 太阳系模拟 - 主配置文件
+ * https://zh.wikipedia.org/wiki/%E8%B3%BD%E5%BE%B7%E5%A8%9C_(%E5%B0%8F%E8%A1%8C%E6%98%9F)#/media/File:Oort_cloud_Sedna_orbit_zh-cn.svg
  */
 const SolarSystemConfig = {
   SUN_CONFIG: {
