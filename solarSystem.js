@@ -155,7 +155,8 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
   planet.userData = { 
     semiMajorAxis,
     eccentricity,
-    name
+    name,
+    initialAngle: planetData.initialAngle || 0
   };
   
   return {
@@ -190,11 +191,12 @@ function createOrbitLine(planetData, color) {
   const segments = planetData.orbitSegments || SolarSystemConfig.ORBIT_CONFIG.segments;
   
   const points = [];
+  const initialAngle = planetData.initialAngle || 0;
   for (let i = 0; i <= segments; i++) {
-    const angle = (i / segments) * Math.PI * 2;
+    const angle = initialAngle + (i / segments) * Math.PI * 2;
     // 严格右手坐标系：X右，Y上，Z屏幕外
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
-    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
+    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle - initialAngle));
     points.push(new THREE.Vector3(
       r * Math.cos(angle),  // X轴：右侧为正
       r * Math.sin(angle), // Y轴：上为正
@@ -248,8 +250,9 @@ function updatePlanetPositions() {
     // 简化计算，使用固定角度增量
     planet.angle += planet.speed * simulationSpeed * 0.01;
     
-    // 精确计算椭圆轨道位置
-    const trueAnomaly = planet.angle;
+    // 精确计算椭圆轨道位置（考虑初始角度）
+    const initialAngle = planet.mesh.userData.initialAngle || 0;
+    const trueAnomaly = initialAngle + planet.angle;
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
     const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
     
