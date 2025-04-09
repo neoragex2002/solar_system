@@ -106,7 +106,7 @@ function createPlanets() {
   });
 }
 
-function createPlanet({ radius, orbitRadius, speed, color, name }) {
+function createPlanet({ radius, orbitRadius, semiMajorAxis, eccentricity, speed, color, name }) {
   const planet = new THREE.Mesh(
     new THREE.SphereGeometry(radius, 32, 32),
     new THREE.MeshPhongMaterial({ color })

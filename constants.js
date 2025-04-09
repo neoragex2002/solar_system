@@ -50,7 +50,16 @@ const PLANETS_DATA = [
     name: "火星",
     orbitColor: 0xe74c3c
   },
-  { radius: 0.08, orbitRadius: 30, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888 },
+  { 
+    radius: 0.08, 
+    orbitRadius: 30, 
+    semiMajorAxis: 30,
+    eccentricity: 0.079,
+    speed: 0.008, 
+    color: 0xCCCCCC, 
+    name: "谷神星",
+    orbitColor: 0x888888 
+  },
   { 
     radius: 1.3, 
     orbitRadius: 35, 
@@ -104,7 +113,7 @@ const PLANETS_DATA = [
   { 
     radius: 0.08, 
     orbitRadius: 76.1, 
-    semiMajorAxis: 76.1,
+    semiMajorAxis: 506, // 实际半长轴约506AU
     eccentricity: 0.855,
     speed: 0.00002, 
     color: 0xFF6633, 
