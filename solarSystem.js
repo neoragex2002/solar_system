@@ -1,4 +1,6 @@
-// 太阳系配置
+/**
+ * 太阳系模拟 - 主配置文件
+ */
 const SolarSystemConfig = {
   SUN_CONFIG: {
     radius: 5,
@@ -36,63 +38,47 @@ const SolarSystemConfig = {
   SPEED_CONTROL_CONFIG: { min: 0.1, max: 20, step: 0.1, defaultValue: 1 }
 };
 
-// 初始化场景
+// ======================
+// 主程序初始化
+// ======================
+
+// 核心Three.js对象
 const scene = new THREE.Scene();
-
-// 创建太阳系
-const { sun, sunLabel } = createSun();
-
-// 添加坐标系辅助（红=X，绿=Y，蓝=Z）
-const axesHelper = new THREE.AxesHelper(15); // 更大的坐标系
-axesHelper.lineWidth = 3; // 更粗的线条
-axesHelper.position.copy(sun.position); // 与太阳中心对齐
-scene.add(axesHelper);
-
-// 初始化相机
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 0, 30); // 从正前方看向XY平面
-camera.lookAt(0, 0, 0);
-
-// 初始化渲染器
+const camera = initCamera();
 const renderer = initRenderer();
-document.body.appendChild(renderer.domElement);
-
-// 初始化控制器
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.update();
 
-// 初始化光照
-initLights();
-
+// 太阳系对象
+const { sun, sunLabel } = createSun();
 const planets = createPlanets();
+const axesHelper = initAxesHelper(sun);
 
-// 初始化后期处理
+// 后期处理
 let composer, bloomPass;
-function initPostProcessing() {
-    const renderScene = new THREE.RenderPass(scene, camera);
-    
-    bloomPass = new THREE.UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        0.5,   // strength
-        1,   // radius
-        0.3    // threshold
-    );
-    bloomPass.enabled = true;
-    
-    composer = new THREE.EffectComposer(renderer);
-    composer.addPass(renderScene);
-    composer.addPass(bloomPass);
-}
 initPostProcessing();
 
-// 初始化速度控制
+// 状态控制
 let simulationSpeed = SolarSystemConfig.SPEED_CONTROL_CONFIG.defaultValue;
 initSpeedControl();
 
-// 动画循环
+// 启动动画循环
 animate();
 
-// ========== 工具函数 ==========
+// ======================
+// 初始化函数
+// ======================
+
+function initCamera() {
+  const camera = new THREE.PerspectiveCamera(
+    75, 
+    window.innerWidth / window.innerHeight, 
+    0.1, 
+    1000
+  );
+  camera.position.set(0, 0, 30);
+  camera.lookAt(0, 0, 0);
+  return camera;
+}
 
 function initRenderer() {
   const renderer = new THREE.WebGLRenderer({
@@ -100,43 +86,82 @@ function initRenderer() {
     powerPreference: "high-performance"
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
   return renderer;
 }
 
+function initAxesHelper(sun) {
+  const helper = new THREE.AxesHelper(15);
+  helper.lineWidth = 3;
+  helper.position.copy(sun.position);
+  scene.add(helper);
+  return helper;
+}
+
+function initPostProcessing() {
+  const renderScene = new THREE.RenderPass(scene, camera);
+  
+  bloomPass = new THREE.UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.5, 1, 0.3
+  );
+  bloomPass.enabled = true;
+  
+  composer = new THREE.EffectComposer(renderer);
+  composer.addPass(renderScene);
+  composer.addPass(bloomPass);
+}
+
+// ======================
+// 光照系统
+// ======================
+
 function initLights() {
+  // 环境光
   scene.add(new THREE.AmbientLight(SolarSystemConfig.LIGHT_CONFIG.ambient));
   
+  // 方向光
   const directionalLight = new THREE.DirectionalLight(
     SolarSystemConfig.LIGHT_CONFIG.directional.color, 
     SolarSystemConfig.LIGHT_CONFIG.directional.intensity
   );
-  directionalLight.position.set(10, 10, 10); // 从右上前方照射
+  directionalLight.position.set(10, 10, 10);
   scene.add(directionalLight);
-}
-
-function createSun() {
-  const sun = new THREE.Mesh(
-    // 太阳几何体
-    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.radius, 64, 64),
-    new THREE.MeshBasicMaterial({
-      color: SolarSystemConfig.SUN_CONFIG.color,
-      transparent: true,
-      opacity: 0.9
-    })
-  );
-  scene.add(sun);
-
-  // 太阳光源
+  
+  // 太阳光
   scene.add(new THREE.PointLight(
     SolarSystemConfig.LIGHT_CONFIG.sunLight.color,
     SolarSystemConfig.LIGHT_CONFIG.sunLight.intensity,
     SolarSystemConfig.LIGHT_CONFIG.sunLight.distance
   ));
+}
 
-  // 创建太阳标签
+// ======================
+// 太阳创建
+// ======================
+
+function createSun() {
+  // 创建太阳网格
+  const geometry = new THREE.SphereGeometry(
+    SolarSystemConfig.SUN_CONFIG.radius, 
+    64, 
+    64
+  );
+  const material = new THREE.MeshBasicMaterial({
+    color: SolarSystemConfig.SUN_CONFIG.color,
+    transparent: true,
+    opacity: 0.9
+  });
+  const sun = new THREE.Mesh(geometry, material);
+  scene.add(sun);
+
+  // 创建标签
   const sunLabel = createSunLabel('太阳');
   
-  return { sun, sunLabel };
+  return { 
+    sun, 
+    sunLabel 
+  };
 }
 
 function createPlanets() {
