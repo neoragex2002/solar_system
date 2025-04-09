@@ -51,7 +51,13 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 // 太阳系对象
 const { sun, sunLabel } = createSun();
 const planets = createPlanets();
+if (!planets || planets.length === 0) {
+  console.error('Failed to create planets!');
+}
 const axesHelper = initAxesHelper(sun);
+
+// 初始化光照
+initLights();
 
 // 后期处理
 let composer, bloomPass;
