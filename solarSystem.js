@@ -104,13 +104,13 @@ function createSun() {
 }
 
 function createPlanets() {
-  if (!Array.isArray(PLANETS_DATA)) {
+  if (!Array.isArray(SolarSystemConfig.PLANETS_DATA)) {
     throw new Error('PLANETS_DATA 必须是数组');
   }
 
-  return PLANETS_DATA.map((planetData, index) => {
+  return SolarSystemConfig.PLANETS_DATA.map((planetData) => {
     if (!planetData.name) {
-      console.warn(`行星数据 ${index} 缺少名称`);
+      console.warn('行星数据缺少名称', planetData);
     }
     
     try {
@@ -118,7 +118,7 @@ function createPlanets() {
       createOrbitLine(planetData, planetData.orbitColor);
       return planet;
     } catch (e) {
-      console.error(`创建行星 ${planetData.name || index} 失败:`, e);
+      console.error(`创建行星 ${planetData.name || '未知'} 失败:`, e);
       return null;
     }
   }).filter(Boolean); // 过滤掉创建失败的行星
