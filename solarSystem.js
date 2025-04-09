@@ -41,9 +41,9 @@ const SolarSystemConfig = {
   
   ASTEROID_BELT_CONFIG: {
     count: 1000,
-    innerRadius: 26,  // 内半径(2.6 AU)
-    outerRadius: 34,  // 外半径(3.4 AU)
-    eccentricity: 0.1, // 与其他行星一致的偏心率参数
+    innerSemiMajorAxis: 25,  // 内半径(2.6 AU)
+    outerSemiMajorAxis: 35,  // 外半径(3.4 AU)
+    eccentricity: 0.07, // 与其他行星一致的偏心率参数
     color: 0x888888,
     size: 0.1,
     rotationSpeed: 0.01
@@ -63,7 +63,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 // 太阳系对象
 const { sun, sunLabel } = createSun();
 function createAsteroidBelt() {
-  const { count, innerRadius, outerRadius, eccentricity, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
+  const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
   const particles = new THREE.BufferGeometry();
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
@@ -71,12 +71,12 @@ function createAsteroidBelt() {
 
   for (let i = 0; i < count; i++) {
     // 在X-Y平面随机分布
-    const radius = innerRadius + Math.random() * (outerRadius - innerRadius);
+    const semiMajorAxis = innerSemiMajorAxis + Math.random() * (outerSemiMajorAxis - innerSemiMajorAxis);
     const angle = Math.random() * Math.PI * 2;
     
     // 使用与行星相同的轨道计算公式
-    const semiLatusRectum = radius * (1 - 0.1 * 0.1); // 假设小行星带偏心率0.1
-    const r = semiLatusRectum / (1 + 0.1 * Math.cos(angle));
+    const semiLatusRectum = semiMajorAxis * (1 - 0.07 * 0.07); // 假设小行星带偏心率0.07
+    const r = semiLatusRectum / (1 + 0.07 * Math.cos(angle));
     positions[i * 3] = r * Math.cos(angle);
     positions[i * 3 + 1] = r * Math.sin(angle);
     positions[i * 3 + 2] = 0;
@@ -342,7 +342,7 @@ function animate(timestamp) {
   
   // 小行星带旋转
   if (asteroidBelt) {
-    asteroidBelt.rotation.z += SolarSystemConfig.ASTEROID_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.01;
+    asteroidBelt.rotation.z += SolarSystemConfig.ASTEROID_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.001;
   }
   
   // 帧率限制
