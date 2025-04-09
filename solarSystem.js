@@ -144,9 +144,14 @@ function createPlanetLabel(name) {
   return label;
 }
 
-function createOrbitLine(radius, color) {
+function createOrbitLine(planetData, color) {
+  const semiMajorAxis = planetData.semiMajorAxis || planetData.orbitRadius;
+  const eccentricity = planetData.eccentricity || 0;
+  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity);
+  
   const points = Array.from({ length: SolarSystemConfig.ORBIT_CONFIG.segments + 1 }, (_, i) => {
     const angle = (i / SolarSystemConfig.ORBIT_CONFIG.segments) * Math.PI * 2;
+    const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
     return new THREE.Vector3(radius * Math.cos(angle), 0, radius * Math.sin(angle));
   });
   
@@ -180,8 +185,12 @@ function initSpeedControl() {
 function updatePlanetPositions() {
   planets.forEach(planet => {
     planet.angle += planet.speed * simulationSpeed;
-    planet.mesh.position.x = planet.orbitRadius * Math.cos(planet.angle);
-    planet.mesh.position.z = planet.orbitRadius * Math.sin(planet.angle);
+    const semiMajorAxis = planet.semiMajorAxis || planet.orbitRadius;
+    const eccentricity = planet.eccentricity || 0;
+    const radius = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
+    
+    planet.mesh.position.x = radius * Math.cos(planet.angle);
+    planet.mesh.position.z = radius * Math.sin(planet.angle);
     planet.mesh.rotation.y += 0.01 * simulationSpeed;
 
     updateLabelPosition(planet);

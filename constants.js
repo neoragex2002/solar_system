@@ -12,8 +12,24 @@ const SUN_CONFIG = {
 
 // 行星配置
 const PLANETS_DATA = [
-  { radius: 0.4, orbitRadius: 10, speed: 0.04, color: 0x8a8a8a, name: "水星" },
-  { radius: 0.6, orbitRadius: 15, speed: 0.03, color: 0xe6c229, name: "金星" },
+  { 
+    radius: 0.4, 
+    orbitRadius: 10, 
+    semiMajorAxis: 10, // 半长轴
+    eccentricity: 0.2056, // 偏心率(水星实际0.2056)
+    speed: 0.04, 
+    color: 0x8a8a8a, 
+    name: "水星" 
+  },
+  { 
+    radius: 0.6, 
+    orbitRadius: 15, 
+    semiMajorAxis: 15,
+    eccentricity: 0.0068, // 金星实际0.0068
+    speed: 0.03, 
+    color: 0xe6c229, 
+    name: "金星" 
+  },
   { radius: 0.6, orbitRadius: 20, speed: 0.02, color: 0x3498db, name: "地球" },
   { radius: 0.4, orbitRadius: 25, speed: 0.015, color: 0xe74c3c, name: "火星" },
   { radius: 0.08, orbitRadius: 30, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888 },
