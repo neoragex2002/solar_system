@@ -40,13 +40,13 @@ const SolarSystemConfig = {
   SPEED_CONTROL_CONFIG: { min: 1, max: 1000, step: 1, defaultValue: 1 },
   
   ASTEROID_BELT_CONFIG: {
-    count: 1000,
+    count: 3000,
     innerSemiMajorAxis: 25,  // 内半径(2.6 AU)
     outerSemiMajorAxis: 35,  // 外半径(3.4 AU)
-    eccentricity: 0.07, // 与其他行星一致的偏心率参数
+    eccentricity: 0.07, // 与火星、木星一致的偏心率参数
     color: 0x888888,
     size: 0.1,
-    rotationSpeed: 0.01
+    rotationSpeed: 0.002 // 小行星带整体旋转速度
   }
 };
 
@@ -73,13 +73,12 @@ function createAsteroidBelt() {
     // 在X-Y平面随机分布
     const semiMajorAxis = innerSemiMajorAxis + Math.random() * (outerSemiMajorAxis - innerSemiMajorAxis);
     const angle = Math.random() * Math.PI * 2;
-    
+
     // 使用与行星相同的轨道计算公式
-    const semiLatusRectum = semiMajorAxis * (1 - 0.07 * 0.07); // 假设小行星带偏心率0.07
-    const r = semiLatusRectum / (1 + 0.07 * Math.cos(angle));
-    positions[i * 3] = r * Math.cos(angle);
-    positions[i * 3 + 1] = r * Math.sin(angle);
-    positions[i * 3 + 2] = 0;
+    const pos = getOrbitalPosition(semiMajorAxis, eccentricity, angle);
+    positions[i * 3] = pos.x;
+    positions[i * 3 + 1] = pos.y;
+    positions[i * 3 + 2] = pos.z;
 
     // 随机颜色变化
     colors[i * 3] = color + Math.random() * 0.2;
@@ -350,7 +349,7 @@ function animate(timestamp) {
   if (deltaTime < frameInterval) return;
   lastTime = timestamp - (deltaTime % frameInterval);
   
-  sun.rotation.y += 0.005;
+  sun.rotation.z += 0.005;
   updatePlanetPositions();
   updateSunLabelPosition();
   
@@ -457,7 +456,7 @@ function updatePlanetPositions() {
 
     const pos = getOrbitalPosition(semiMajorAxis, eccentricity, planet.angle);
     planet.mesh.position.copy(pos);
-    planet.mesh.rotation.y += 0.01 * simulationSpeed;
+    planet.mesh.rotation.z += 0.01 * simulationSpeed;
 
     updateLabelPosition(planet);
   });
