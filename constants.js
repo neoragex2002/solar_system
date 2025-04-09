@@ -29,8 +29,7 @@ const PLANETS_DATA = [
     name: "金星" 
   },
   { 
-    radius: 0.6, 
-    orbitRadius: 20, 
+    radius: 0.6,
     semiMajorAxis: 20,
     eccentricity: 0.0167,
     speed: 0.02, 
@@ -39,8 +38,7 @@ const PLANETS_DATA = [
     orbitColor: 0x3498db
   },
   { 
-    radius: 0.4, 
-    orbitRadius: 25, 
+    radius: 0.4,
     semiMajorAxis: 25,
     eccentricity: 0.0934,
     speed: 0.015, 
@@ -49,8 +47,7 @@ const PLANETS_DATA = [
     orbitColor: 0xe74c3c
   },
   { 
-    radius: 0.08, 
-    orbitRadius: 30, 
+    radius: 0.08,
     semiMajorAxis: 30,
     eccentricity: 0.079,
     speed: 0.008, 
@@ -59,8 +56,7 @@ const PLANETS_DATA = [
     orbitColor: 0x888888 
   },
   { 
-    radius: 1.3, 
-    orbitRadius: 35, 
+    radius: 1.3,
     semiMajorAxis: 35,
     eccentricity: 0.0484,
     speed: 0.01, 
@@ -69,8 +65,7 @@ const PLANETS_DATA = [
     orbitColor: 0xe67e22
   },
   { 
-    radius: 1.1, 
-    orbitRadius: 45, 
+    radius: 1.1,
     semiMajorAxis: 45,
     eccentricity: 0.0542,
     speed: 0.008, 
@@ -79,8 +74,7 @@ const PLANETS_DATA = [
     orbitColor: 0xf1c40f
   },
   { 
-    radius: 0.9, 
-    orbitRadius: 55, 
+    radius: 0.9,
     semiMajorAxis: 55,
     eccentricity: 0.0472,
     speed: 0.006, 
@@ -89,8 +83,7 @@ const PLANETS_DATA = [
     orbitColor: 0x1abc9c
   },
   { 
-    radius: 0.8, 
-    orbitRadius: 65, 
+    radius: 0.8,
     semiMajorAxis: 65,
     eccentricity: 0.0086,
     speed: 0.004, 
@@ -99,8 +92,7 @@ const PLANETS_DATA = [
     orbitColor: 0x3498db
   },
   { 
-    radius: 0.3, 
-    orbitRadius: 75, 
+    radius: 0.3,
     semiMajorAxis: 75,
     eccentricity: 0.2488,
     speed: 0.002, 
@@ -110,7 +102,6 @@ const PLANETS_DATA = [
   },
   { 
     radius: 0.2,  // 增大可见性
-    orbitRadius: 76.1,
     semiMajorAxis: 76.1,
     eccentricity: 0.855,
     speed: 0.0001,  // 适当加快速度
