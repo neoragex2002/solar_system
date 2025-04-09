@@ -104,11 +104,24 @@ function createSun() {
 }
 
 function createPlanets() {
-  return PLANETS_DATA.map(planetData => {
-    const planet = createPlanet(planetData);
-    createOrbitLine(planetData, planetData.orbitColor);
-    return planet;
-  });
+  if (!Array.isArray(PLANETS_DATA)) {
+    throw new Error('PLANETS_DATA 必须是数组');
+  }
+
+  return PLANETS_DATA.map((planetData, index) => {
+    if (!planetData.name) {
+      console.warn(`行星数据 ${index} 缺少名称`);
+    }
+    
+    try {
+      const planet = createPlanet(planetData);
+      createOrbitLine(planetData, planetData.orbitColor);
+      return planet;
+    } catch (e) {
+      console.error(`创建行星 ${planetData.name || index} 失败:`, e);
+      return null;
+    }
+  }).filter(Boolean); // 过滤掉创建失败的行星
 }
 
 function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
