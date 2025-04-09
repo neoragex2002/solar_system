@@ -99,7 +99,28 @@ function createSun() {
 }
 
 function createPlanets() {
-  return PLANETS_DATA.map(planetData => {
+  // Add Ceres (dwarf planet in asteroid belt)
+  const ceresData = {
+    radius: 0.05,
+    orbitRadius: 2.77,
+    speed: 0.0005,
+    color: 0xCCCCCC,
+    name: '谷神星'
+  };
+  
+  // Add Sedna (distant trans-Neptunian object)
+  const sednaData = {
+    radius: 0.08,
+    orbitRadius: 76.1,
+    speed: 0.00005,
+    color: 0xFF6633,
+    name: '塞德娜'
+  };
+
+  // Create standard planets plus our new dwarf planets
+  const allPlanets = PLANETS_DATA.concat([ceresData, sednaData]);
+  
+  return allPlanets.map(planetData => {
     const planet = createPlanet(planetData);
     createOrbitLine(planetData.orbitRadius);
     return planet;
