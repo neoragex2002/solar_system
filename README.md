@@ -2,7 +2,7 @@
 
 使用Vibe Programming创建的一个基于WebGL和Three.js构建的3D交互式太阳系可视化系统，精确模拟太阳系主要天体的运行轨道和物理特性。
 
-![太阳系模拟运行截图](imgs/screenshot.jpg)
+<img src="imgs/screenshot.jpg" alt="太阳系模拟运行截图" width="600"/>
 
 ## 功能特性
 
