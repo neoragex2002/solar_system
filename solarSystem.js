@@ -29,10 +29,11 @@ function initPostProcessing() {
     
     bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2(window.innerWidth, window.innerHeight),
-        2.5,   // 增强发光强度
-        0.6,   // 增大光晕半径 
-        0.7    // 降低阈值让更多区域发光
+        2.5,   // strength
+        0.6,   // radius
+        0.7    // threshold
     );
+    bloomPass.enabled = true;
     
     composer = new THREE.EffectComposer(renderer);
     composer.addPass(renderScene);
@@ -218,11 +219,15 @@ function animate() {
   sun.rotation.y += 0.005;
   updatePlanetPositions();
   
-  // 更新太阳光晕位置
+  // 更新太阳光晕效果
   if (bloomPass) {
     const sunLight = new THREE.Vector3();
     sun.getWorldPosition(sunLight);
-    bloomPass.lightPosition.copy(sunLight);
+    // 设置光晕效果参数
+    bloomPass.enabled = true;
+    bloomPass.strength = 2.5;
+    bloomPass.radius = 0.6;
+    bloomPass.threshold = 0.7;
   }
   
   controls.update();
