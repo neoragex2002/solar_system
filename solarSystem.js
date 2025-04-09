@@ -1,4 +1,40 @@
-// 使用全局变量
+// 太阳系配置
+const SolarSystemConfig = {
+  SUN_CONFIG: {
+    radius: 5,
+    color: 0xffff00,
+    glow: {
+      radius: 8,
+      color: 0xffaa00,
+      opacity: 0.3,
+      pulseScale: 0.1
+    }
+  },
+
+  PLANETS_DATA: [
+    { radius: 0.4, semiMajorAxis: 10, eccentricity: 0.2056, speed: 0.04, color: 0x8a8a8a, name: "水星" },
+    { radius: 0.6, semiMajorAxis: 15, eccentricity: 0.0068, speed: 0.03, color: 0xe6c229, name: "金星" },
+    { radius: 0.6, semiMajorAxis: 20, eccentricity: 0.0167, speed: 0.02, color: 0x3498db, name: "地球", orbitColor: 0x3498db },
+    { radius: 0.4, semiMajorAxis: 25, eccentricity: 0.0934, speed: 0.015, color: 0xe74c3c, name: "火星", orbitColor: 0xe74c3c },
+    { radius: 0.08, semiMajorAxis: 30, eccentricity: 0.079, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888 },
+    { radius: 1.3, semiMajorAxis: 35, eccentricity: 0.0484, speed: 0.01, color: 0xe67e22, name: "木星", orbitColor: 0xe67e22 },
+    { radius: 1.1, semiMajorAxis: 45, eccentricity: 0.0542, speed: 0.008, color: 0xf1c40f, name: "土星", orbitColor: 0xf1c40f },
+    { radius: 0.9, semiMajorAxis: 55, eccentricity: 0.0472, speed: 0.006, color: 0x1abc9c, name: "天王星", orbitColor: 0x1abc9c },
+    { radius: 0.8, semiMajorAxis: 65, eccentricity: 0.0086, speed: 0.004, color: 0x3498db, name: "海王星", orbitColor: 0x3498db },
+    { radius: 0.3, semiMajorAxis: 75, eccentricity: 0.2488, speed: 0.002, color: 0x9b59b6, name: "冥王星", orbitColor: 0x9b59b6 }
+  ],
+
+  LIGHT_CONFIG: {
+    ambient: 0x404040,
+    directional: { color: 0xffffff, intensity: 1, position: { x: 0, y: 1, z: 0 } },
+    sunLight: { color: 0xffff99, intensity: 1, distance: 100 }
+  },
+
+  CAMERA_POSITION: { x: 0, y: 0, z: 150 },
+  ORBIT_CONFIG: { color: 0x555555, segments: 64 },
+  LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
+  SPEED_CONTROL_CONFIG: { min: 0.1, max: 20, step: 0.1, defaultValue: 1 }
+};
 
 // 初始化场景
 const scene = new THREE.Scene();
