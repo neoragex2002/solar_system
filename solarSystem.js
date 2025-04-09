@@ -162,7 +162,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
     mesh: planet,
     label,
     speed,
-    angle: Math.random() * Math.PI * 2
+    angle: index * (2 * Math.PI / PLANETS_DATA.length) // 等间距分布
   };
 }
 
