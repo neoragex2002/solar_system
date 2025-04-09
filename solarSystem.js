@@ -38,7 +38,7 @@ const SolarSystemConfig = {
   ORBIT_CONFIG: { color: 0x555555, segments: 64, opacity: 0.7 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
   SPEED_CONTROL_CONFIG: { min: 1, max: 1000, step: 1, defaultValue: 1 },
-  
+
   ASTEROID_BELT_CONFIG: {
     count: 3000,
     innerSemiMajorAxis: 25,  // 内半径(2.6 AU)
@@ -50,10 +50,10 @@ const SolarSystemConfig = {
   },
 
   KUIPER_BELT_CONFIG: {
-    count: 5000,
-    innerSemiMajorAxis: 65,  // 内半径(海王星轨道外)
-    outerSemiMajorAxis: 100, // 外半径(冥王星轨道外)
-    eccentricity: 0.2,       // 更高的偏心率
+    count: 1200,
+    innerSemiMajorAxis: 70,  // 内半径(海王星轨道外)
+    outerSemiMajorAxis: 90, // 外半径(冥王星轨道外)
+    eccentricity: 0.128,       // 更高的偏心率
     color: 0x66ccff,        // 冰蓝色调
     size: 0.15,             // 稍大些的颗粒
     rotationSpeed: 0.0005   // 更慢的旋转
@@ -190,9 +190,9 @@ animate(performance.now());
 
 function initCamera() {
   const camera = new THREE.PerspectiveCamera(
-    75, 
-    window.innerWidth / window.innerHeight, 
-    0.1, 
+    75,
+    window.innerWidth / window.innerHeight,
+    0.1,
     1000
   );
   camera.position.set(0, 0, 30);
@@ -221,13 +221,13 @@ function initAxesHelper(sun) {
 
 function initPostProcessing() {
   const renderScene = new THREE.RenderPass(scene, camera);
-  
+
   bloomPass = new THREE.UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
     0.5, 1, 0.1 // Lower threshold for better distant object visibility
   );
   bloomPass.enabled = true;
-  
+
   composer = new THREE.EffectComposer(renderer);
   composer.addPass(renderScene);
   composer.addPass(bloomPass);
@@ -240,10 +240,10 @@ function initPostProcessing() {
 function initLights() {
   // 环境光
   scene.add(new THREE.AmbientLight(SolarSystemConfig.LIGHT_CONFIG.ambient));
-  
+
   // 方向光
   const directionalLight = new THREE.DirectionalLight(
-    SolarSystemConfig.LIGHT_CONFIG.directional.color, 
+    SolarSystemConfig.LIGHT_CONFIG.directional.color,
     SolarSystemConfig.LIGHT_CONFIG.directional.intensity
   );
   directionalLight.position.set(10, 10, 10);
@@ -264,8 +264,8 @@ function initLights() {
 function createSun() {
   // 创建太阳网格
   const geometry = new THREE.SphereGeometry(
-    SolarSystemConfig.SUN_CONFIG.radius, 
-    64, 
+    SolarSystemConfig.SUN_CONFIG.radius,
+    64,
     64
   );
   const material = new THREE.MeshBasicMaterial({
@@ -278,10 +278,10 @@ function createSun() {
 
   // 创建标签
   const sunLabel = createSunLabel('太阳');
-  
-  return { 
-    sun, 
-    sunLabel 
+
+  return {
+    sun,
+    sunLabel
   };
 }
 
@@ -292,7 +292,7 @@ function createPlanets() {
 
   // 遍历所有行星配置数据，创建行星对象
   const planets = [];
-  
+
   for (const planetData of SolarSystemConfig.PLANETS_DATA) {
     // 检查行星名称是否存在
     if (!planetData.name) {
@@ -355,7 +355,7 @@ function updateSunLabelPosition() {
   const sunWorldPos = new THREE.Vector3();
   sun.getWorldPosition(sunWorldPos);
   const screenPos = sunWorldPos.clone().project(camera);
-  
+
   if (screenPos.z > 1 || screenPos.z < -1) {
     sunLabel.style.display = 'none';
     return;
@@ -373,7 +373,7 @@ function updateLabelPosition(planet) {
   const planetWorldPos = new THREE.Vector3();
   planet.mesh.getWorldPosition(planetWorldPos);
   const screenPos = planetWorldPos.clone().project(camera);
-  
+
   // 检查是否在视锥体内
   if (screenPos.z > 1 || screenPos.z < -1) {
     planet.label.style.display = 'none';
@@ -382,8 +382,8 @@ function updateLabelPosition(planet) {
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
   // 修改这里：使用 screenPos.y 计算 y 坐标
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - 
-            (planet.labelOffset || SolarSystemConfig.LABEL_CONFIG.offsetY);
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight -
+    (planet.labelOffset || SolarSystemConfig.LABEL_CONFIG.offsetY);
 
   planet.label.style.display = 'block';
   planet.label.style.left = `${x}px`;
@@ -392,34 +392,34 @@ function updateLabelPosition(planet) {
 
 function animate(timestamp) {
   requestAnimationFrame(animate);
-  
+
   // 小行星带旋转
   if (asteroidBelt) {
     asteroidBelt.rotation.z += SolarSystemConfig.ASTEROID_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.001;
   }
-  
+
   // 柯依伯带旋转
   if (kuiperBelt) {
     kuiperBelt.rotation.z += SolarSystemConfig.KUIPER_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.001;
   }
-  
+
   // 帧率限制
   const deltaTime = timestamp - lastTime;
   if (deltaTime < frameInterval) return;
   lastTime = timestamp - (deltaTime % frameInterval);
-  
+
   sun.rotation.z += 0.005;
   updatePlanetPositions();
   updateSunLabelPosition();
-  
+
   // 太阳光晕效果（只需设置一次）
   if (bloomPass && !bloomPass._initialized) {
     bloomPass.strength = 2.5;
-    bloomPass.radius = 0.6; 
+    bloomPass.radius = 0.6;
     bloomPass.threshold = 0.7;
     bloomPass._initialized = true;
   }
-  
+
   controls.update();
   composer.render();
 }
