@@ -229,7 +229,7 @@ function updateSunLabelPosition() {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight; // 显示在太阳正中心
+  const y = (-(screenPos.z * 0.5) + 0.5) * window.innerHeight; // 使用XZ平面坐标
 
   sunLabel.style.display = 'block';
   sunLabel.style.top = `${y}px`;
