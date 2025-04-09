@@ -11,6 +11,24 @@ camera.position.set(CAMERA_POSITION.x, CAMERA_POSITION.y, CAMERA_POSITION.z);
 const renderer = initRenderer();
 document.body.appendChild(renderer.domElement);
 
+// 初始化后期处理
+let composer, bloomPass;
+function initPostProcessing() {
+    const renderScene = new THREE.RenderPass(scene, camera);
+    
+    bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        1.5,   // strength
+        0.4,   // radius
+        0.85   // threshold
+    );
+    
+    composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+}
+initPostProcessing();
+
 // 初始化控制器
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.update();
@@ -194,7 +212,10 @@ function animate() {
   updatePlanetPositions();
   
   controls.update();
-  renderer.render(scene, camera);
+  
+  // 更新太阳光晕位置用于光晕效果
+  sunGlow.getWorldPosition(bloomPass.lightPosition);
+  composer.render();
 }
 
 // 窗口大小变化处理
@@ -202,6 +223,7 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // 清理标签
