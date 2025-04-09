@@ -19,7 +19,7 @@ controls.update();
 initLights();
 
 // 创建太阳系
-const { sun, sunGlow } = createSun();
+const { sun } = createSun();
 const planets = createPlanets();
 
 // 初始化后期处理
@@ -92,19 +92,7 @@ function createSun() {
     SolarSystemConfig.LIGHT_CONFIG.sunLight.distance
   ));
 
-  // 增强的太阳光晕
-  const sunGlow = new THREE.Mesh(
-    new THREE.SphereGeometry(SolarSystemConfig.SUN_CONFIG.glow.radius * 1.2, 64, 64),
-    new THREE.MeshBasicMaterial({
-      color: SolarSystemConfig.SUN_CONFIG.glow.color,
-      transparent: true,
-      opacity: SolarSystemConfig.SUN_CONFIG.glow.opacity,
-      blending: THREE.AdditiveBlending // 使用叠加混合模式增强效果
-    })
-  );
-  // scene.add(sunGlow);
-
-  return { sun, sunGlow };
+  return { sun };
 }
 
 function createPlanets() {
@@ -201,21 +189,10 @@ function updateLabelPosition(planet) {
   planet.label.style.top = `${y}px`;
 }
 
-function pulseSunGlow() {
-  const time = Date.now() * 0.001;
-  // 更自然的脉动效果
-  const scale = 1 + Math.sin(time) * 0.1 + Math.sin(time * 0.5) * 0.05;
-  sunGlow.scale.set(scale, scale, scale);
-  
-  // 动态调整光晕透明度
-  const opacity = 0.7 + Math.sin(time * 1.5) * 0.1;
-  sunGlow.material.opacity = opacity;
-}
 
 function animate() {
   requestAnimationFrame(animate);
   
-  pulseSunGlow();
   sun.rotation.y += 0.005;
   updatePlanetPositions();
   
