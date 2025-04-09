@@ -34,7 +34,7 @@ const SolarSystemConfig = {
   },
 
   CAMERA_POSITION: { x: 0, y: 0, z: 150 },
-  ORBIT_CONFIG: { color: 0x555555, segments: 64 },
+  ORBIT_CONFIG: { color: 0x555555, segments: 64, opacity: 0.7 },
   LABEL_CONFIG: { offsetY: 30, background: 'rgba(0, 0, 0, 0.6)', border: '1px solid rgba(255, 255, 255, 0.3)' },
   SPEED_CONTROL_CONFIG: { min: 0.1, max: 200, step: 0.1, defaultValue: 1 }
 };
@@ -193,7 +193,7 @@ function createPlanets() {
   }).filter(Boolean); // 过滤掉创建失败的行星
 }
 
-function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name, initialAngle = 0 }) {
   if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
     throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
   }
@@ -206,8 +206,8 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
     new THREE.MeshPhongMaterial({ color })
   );
   
-  // 使用开普勒方程计算初始位置
-  const trueAnomaly = 0;
+  // 使用开普勒方程计算初始位置（考虑initialAngle）
+  const trueAnomaly = initialAngle;
   const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
   const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
   
@@ -329,14 +329,16 @@ function updatePlanetPositions() {
     planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
     planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
     
-    // 验证中心点位置
-    const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
-    const expectedY = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.sin(trueAnomaly);
-    console.assert(
-      Math.abs(planet.mesh.position.x - expectedX) < 0.001 && 
-      Math.abs(planet.mesh.position.y - expectedY) < 0.001,
-      'Planet position does not match orbit line'
-    );
+    // 开发环境下验证轨道位置
+    if (process.env.NODE_ENV === 'development') {
+      const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
+      const expectedY = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.sin(trueAnomaly);
+      console.assert(
+        Math.abs(planet.mesh.position.x - expectedX) < 0.001 && 
+        Math.abs(planet.mesh.position.y - expectedY) < 0.001,
+        'Planet position does not match orbit line'
+      );
+    }
     
     // 归一化角度
     if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
@@ -386,22 +388,28 @@ function updateLabelPosition(planet) {
 }
 
 
-function animate() {
+let lastTime = 0;
+const frameRate = 60;
+const frameInterval = 1000 / frameRate;
+
+function animate(timestamp) {
   requestAnimationFrame(animate);
+  
+  // Frame rate limiting
+  const deltaTime = timestamp - lastTime;
+  if (deltaTime < frameInterval) return;
+  lastTime = timestamp - (deltaTime % frameInterval);
   
   sun.rotation.y += 0.005;
   updatePlanetPositions();
   updateSunLabelPosition();
   
-  // 更新太阳光晕效果
-  if (bloomPass) {
-    const sunLight = new THREE.Vector3();
-    sun.getWorldPosition(sunLight);
-    // 设置光晕效果参数
-    bloomPass.enabled = true;
+  // 太阳光晕效果（只需设置一次）
+  if (bloomPass && !bloomPass._initialized) {
     bloomPass.strength = 2.5;
-    bloomPass.radius = 0.6;
+    bloomPass.radius = 0.6; 
     bloomPass.threshold = 0.7;
+    bloomPass._initialized = true;
   }
   
   controls.update();
