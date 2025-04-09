@@ -47,6 +47,16 @@ const SolarSystemConfig = {
     color: 0x888888,
     size: 0.1,
     rotationSpeed: 0.002 // 小行星带整体旋转速度
+  },
+
+  KUIPER_BELT_CONFIG: {
+    count: 5000,
+    innerSemiMajorAxis: 65,  // 内半径(海王星轨道外)
+    outerSemiMajorAxis: 100, // 外半径(冥王星轨道外)
+    eccentricity: 0.2,       // 更高的偏心率
+    color: 0x66ccff,        // 冰蓝色调
+    size: 0.15,             // 稍大些的颗粒
+    rotationSpeed: 0.0005   // 更慢的旋转
   }
 };
 
@@ -62,6 +72,49 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
 // 太阳系对象
 const { sun, sunLabel } = createSun();
+function createKuiperBelt() {
+  const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = SolarSystemConfig.KUIPER_BELT_CONFIG;
+  const particles = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+
+  for (let i = 0; i < count; i++) {
+    // 在X-Y平面随机分布
+    const semiMajorAxis = innerSemiMajorAxis + Math.random() * (outerSemiMajorAxis - innerSemiMajorAxis);
+    const angle = Math.random() * Math.PI * 2;
+
+    // 使用与行星相同的轨道计算公式
+    const pos = getOrbitalPosition(semiMajorAxis, eccentricity, angle);
+    positions[i * 3] = pos.x;
+    positions[i * 3 + 1] = pos.y;
+    positions[i * 3 + 2] = pos.z * (0.5 + Math.random()); // 添加Z轴分布
+
+    // 冰蓝色调变化
+    colors[i * 3] = color + Math.random() * 0.1;
+    colors[i * 3 + 1] = color + Math.random() * 0.1;
+    colors[i * 3 + 2] = color + Math.random() * 0.2;
+
+    sizes[i] = size * (0.5 + Math.random() * 0.5);
+  }
+
+  particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  const material = new THREE.PointsMaterial({
+    size: size,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.6,
+    sizeAttenuation: true
+  });
+
+  const kuiperBelt = new THREE.Points(particles, material);
+  scene.add(kuiperBelt);
+  return kuiperBelt;
+}
+
 function createAsteroidBelt() {
   const { count, innerSemiMajorAxis, outerSemiMajorAxis, eccentricity, color, size } = SolarSystemConfig.ASTEROID_BELT_CONFIG;
   const particles = new THREE.BufferGeometry();
@@ -105,6 +158,7 @@ function createAsteroidBelt() {
 }
 
 const asteroidBelt = createAsteroidBelt();
+const kuiperBelt = createKuiperBelt();
 const planets = createPlanets();
 if (!planets || planets.length === 0) {
   console.error('Failed to create planets!');
@@ -342,6 +396,11 @@ function animate(timestamp) {
   // 小行星带旋转
   if (asteroidBelt) {
     asteroidBelt.rotation.z += SolarSystemConfig.ASTEROID_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.001;
+  }
+  
+  // 柯依伯带旋转
+  if (kuiperBelt) {
+    kuiperBelt.rotation.z += SolarSystemConfig.KUIPER_BELT_CONFIG.rotationSpeed * simulationSpeed * 0.001;
   }
   
   // 帧率限制
