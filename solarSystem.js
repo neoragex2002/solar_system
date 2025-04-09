@@ -154,7 +154,7 @@ function createOrbitLine(planetData, color) {
       radius * Math.cos(angle),
       0,
       radius * Math.sin(angle)
-    );
+    ));
   }
   
   const orbitLine = new THREE.Line(
