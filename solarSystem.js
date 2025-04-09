@@ -15,17 +15,17 @@ const SolarSystemConfig = {
   },
 
   PLANETS_DATA: [
-    { radius: 0.4, semiMajorAxis: 10, eccentricity: 0.2056, speed: 0.04, color: 0x8a8a8a, name: "水星", orbitColor: 0x8a8a8a },
-    { radius: 0.6, semiMajorAxis: 15, eccentricity: 0.0068, speed: 0.03, color: 0xe6c229, name: "金星", orbitColor: 0xe6c229 },
-    { radius: 0.6, semiMajorAxis: 20, eccentricity: 0.0167, speed: 0.02, color: 0x3498db, name: "地球", orbitColor: 0x3498db },
-    { radius: 0.4, semiMajorAxis: 25, eccentricity: 0.0934, speed: 0.015, color: 0xe74c3c, name: "火星", orbitColor: 0xe74c3c },
-    { radius: 0.08, semiMajorAxis: 30, eccentricity: 0.079, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888 },
-    { radius: 1.3, semiMajorAxis: 35, eccentricity: 0.0484, speed: 0.01, color: 0xe67e22, name: "木星", orbitColor: 0xe67e22 },
-    { radius: 1.1, semiMajorAxis: 45, eccentricity: 0.0542, speed: 0.008, color: 0xf1c40f, name: "土星", orbitColor: 0xf1c40f },
-    { radius: 0.9, semiMajorAxis: 55, eccentricity: 0.0472, speed: 0.006, color: 0x1abc9c, name: "天王星", orbitColor: 0x1abc9c },
-    { radius: 0.8, semiMajorAxis: 65, eccentricity: 0.0086, speed: 0.004, color: 0x3498db, name: "海王星", orbitColor: 0x3498db },
-    { radius: 0.3, semiMajorAxis: 75, eccentricity: 0.2488, speed: 0.002, color: 0x9b59b6, name: "冥王星", orbitColor: 0x9b59b6 },
-    { radius: 0.2, semiMajorAxis: 506, eccentricity: 0.855, speed: 0.0005, color: 0xcc6666, name: "赛德娜", orbitColor: 0xcc6666 }
+    { radius: 0.4, semiMajorAxis: 10, eccentricity: 0.2056, speed: 0.04, color: 0x8a8a8a, name: "水星", orbitColor: 0x8a8a8a, trueAnomaly: 4.935 },
+    { radius: 0.6, semiMajorAxis: 15, eccentricity: 0.0068, speed: 0.03, color: 0xe6c229, name: "金星", orbitColor: 0xe6c229, trueAnomaly: 3.347 },
+    { radius: 0.6, semiMajorAxis: 20, eccentricity: 0.0167, speed: 0.02, color: 0x3498db, name: "地球", orbitColor: 0x3498db, trueAnomaly: 4.578 },
+    { radius: 0.4, semiMajorAxis: 25, eccentricity: 0.0934, speed: 0.015, color: 0xe74c3c, name: "火星", orbitColor: 0xe74c3c, trueAnomaly: 5.919 },
+    { radius: 0.08, semiMajorAxis: 30, eccentricity: 0.079, speed: 0.008, color: 0xCCCCCC, name: "谷神星", orbitColor: 0x888888, trueAnomaly: 0.785 },
+    { radius: 1.3, semiMajorAxis: 35, eccentricity: 0.0484, speed: 0.01, color: 0xe67e22, name: "木星", orbitColor: 0xe67e22, trueAnomaly: 0.257 },
+    { radius: 1.1, semiMajorAxis: 45, eccentricity: 0.0542, speed: 0.008, color: 0xf1c40f, name: "土星", orbitColor: 0xf1c40f, trueAnomaly: 1.884 },
+    { radius: 0.9, semiMajorAxis: 55, eccentricity: 0.0472, speed: 0.006, color: 0x1abc9c, name: "天王星", orbitColor: 0x1abc9c, trueAnomaly: 2.984 },
+    { radius: 0.8, semiMajorAxis: 65, eccentricity: 0.0086, speed: 0.004, color: 0x3498db, name: "海王星", orbitColor: 0x3498db, trueAnomaly: 4.512 },
+    { radius: 0.3, semiMajorAxis: 75, eccentricity: 0.2488, speed: 0.002, color: 0x9b59b6, name: "冥王星", orbitColor: 0x9b59b6, trueAnomaly: 5.267 },
+    { radius: 0.2, semiMajorAxis: 506, eccentricity: 0.855, speed: 0.0005, color: 0xcc6666, name: "赛德娜", orbitColor: 0xcc6666, trueAnomaly: 3.141 }
   ],
 
   LIGHT_CONFIG: {
@@ -364,13 +364,13 @@ function createOrbitLine(planetData, color) {
 }
 
 // Create a planet object
-function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, name }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, name, trueAnomaly = 0 }) {
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(radius, 32, 32),
     new THREE.MeshPhongMaterial({ color })
   );
 
-  const initialPos = getOrbitalPosition(semiMajorAxis, eccentricity, 0);
+  const initialPos = getOrbitalPosition(semiMajorAxis, eccentricity, trueAnomaly);
   mesh.position.copy(initialPos);
   scene.add(mesh);
 
@@ -383,7 +383,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity = 0, speed, color, n
     mesh,
     label,
     speed,
-    angle: 0 // 初始真近点角
+    angle: trueAnomaly // 使用J2000历元的真实初始角度
   };
 }
 
