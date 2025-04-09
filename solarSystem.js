@@ -5,7 +5,8 @@ const scene = new THREE.Scene();
 
 // 初始化相机
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(CAMERA_POSITION.x, CAMERA_POSITION.y, CAMERA_POSITION.z);
+camera.position.set(0, 0, 30); // 从正前方看向XY平面
+camera.lookAt(0, 0, 0);
 
 // 初始化渲染器
 const renderer = initRenderer();
@@ -66,11 +67,7 @@ function initLights() {
     SolarSystemConfig.LIGHT_CONFIG.directional.color, 
     SolarSystemConfig.LIGHT_CONFIG.directional.intensity
   );
-  directionalLight.position.set(
-    SolarSystemConfig.LIGHT_CONFIG.directional.position.x,
-    SolarSystemConfig.LIGHT_CONFIG.directional.position.y,
-    SolarSystemConfig.LIGHT_CONFIG.directional.position.z
-  );
+  directionalLight.position.set(10, 10, 10); // 从右上前方照射
   scene.add(directionalLight);
 }
 
@@ -111,8 +108,12 @@ function createPlanet({ radius, orbitRadius, semiMajorAxis, eccentricity, speed,
     new THREE.SphereGeometry(radius, 32, 32),
     new THREE.MeshPhongMaterial({ color })
   );
-  // 初始位置在轨道近地点
-  planet.position.x = semiMajorAxis * (1 - eccentricity);
+  // 初始位置在轨道近地点（与轨道线计算一致）
+  const initialAngle = 0; // 近地点角度
+  const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(initialAngle));
+  planet.position.x = r * Math.cos(initialAngle);
+  planet.position.y = r * Math.sin(initialAngle);
+  planet.position.z = 0;
   scene.add(planet);
 
   const label = createPlanetLabel(name);
@@ -150,16 +151,13 @@ function createOrbitLine(planetData, color) {
   const points = [];
   for (let i = 0; i <= segments; i++) {
     const angle = (i / segments) * Math.PI * 2;
-    // 统一使用右手坐标系，Z轴向上
-    // 统一使用右手坐标系，Z轴向上
-    // 精确椭圆轨道计算
+    // 严格右手坐标系：X右，Y上，Z屏幕外
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
     const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
-    // 统一使用右手坐标系，Z轴向上
     points.push(new THREE.Vector3(
-      r * Math.cos(angle),
-      0,
-      r * Math.sin(angle)  // 在XZ平面运动
+      r * Math.cos(angle),  // X轴：右侧为正
+      r * Math.sin(angle), // Y轴：上为正
+      0                    // Z轴：屏幕外为正（XY平面运动）
     ));
   }
   
@@ -210,11 +208,10 @@ function updatePlanetPositions() {
     const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
     const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
     
-    // 统一使用右手坐标系，Z轴向上
-    // 保持与轨道线相同的坐标系
-    planet.mesh.position.x = r * Math.cos(trueAnomaly);
-    planet.mesh.position.y = 0; // Y轴设为0
-    planet.mesh.position.z = r * Math.sin(trueAnomaly); // 在XZ平面运动
+    // 严格右手坐标系：X右，Y上，Z屏幕外
+    planet.mesh.position.x = r * Math.cos(trueAnomaly);  // X轴：右侧为正
+    planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
+    planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
     
     // 验证中心点位置
     const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
@@ -245,7 +242,7 @@ function updateSunLabelPosition() {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.z * 0.5) + 0.5) * window.innerHeight; // 使用XZ平面坐标
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight; // 使用Y坐标
 
   sunLabel.style.display = 'block';
   sunLabel.style.top = `${y}px`;
