@@ -138,7 +138,6 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
   return {
     mesh: planet,
     label,
-    orbitRadius,
     speed,
     angle: Math.random() * Math.PI * 2
   };
