@@ -23,7 +23,8 @@ const SolarSystemConfig = {
     { radius: 1.1, semiMajorAxis: 45, eccentricity: 0.0542, speed: 0.008, color: 0xf1c40f, name: "土星", orbitColor: 0xf1c40f },
     { radius: 0.9, semiMajorAxis: 55, eccentricity: 0.0472, speed: 0.006, color: 0x1abc9c, name: "天王星", orbitColor: 0x1abc9c },
     { radius: 0.8, semiMajorAxis: 65, eccentricity: 0.0086, speed: 0.004, color: 0x3498db, name: "海王星", orbitColor: 0x3498db },
-    { radius: 0.3, semiMajorAxis: 75, eccentricity: 0.2488, speed: 0.002, color: 0x9b59b6, name: "冥王星", orbitColor: 0x9b59b6 }
+    { radius: 0.3, semiMajorAxis: 75, eccentricity: 0.2488, speed: 0.002, color: 0x9b59b6, name: "冥王星", orbitColor: 0x9b59b6 },
+    { radius: 0.2, semiMajorAxis: 506, eccentricity: 0.855, speed: 0.0005, color: 0xcc6666, name: "赛德娜", orbitColor: 0xcc6666 }
   ],
 
   LIGHT_CONFIG: {
@@ -82,6 +83,7 @@ function initCamera() {
     1000
   );
   camera.position.set(0, 0, 30);
+  camera.far = 1000; // Increased to see Sedna's orbit
   camera.lookAt(0, 0, 0);
   return camera;
 }
@@ -109,7 +111,7 @@ function initPostProcessing() {
   
   bloomPass = new THREE.UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.5, 1, 0.3
+    0.5, 1, 0.1 // Lower threshold for better distant object visibility
   );
   bloomPass.enabled = true;
   
