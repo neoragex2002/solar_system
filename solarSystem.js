@@ -192,7 +192,7 @@ function updateSunLabelPosition() {
   }
 
   const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - 50; // 太阳标签比行星标签更高
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight; // 显示在太阳正中心
 
   sunLabel.style.display = 'block';
   sunLabel.style.top = `${y}px`;
