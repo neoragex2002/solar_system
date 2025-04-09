@@ -182,20 +182,27 @@ function createPlanets() {
     throw new Error('PLANETS_DATA 必须是数组');
   }
 
-  return SolarSystemConfig.PLANETS_DATA.map((planetData) => {
+  // 遍历所有行星配置数据，创建行星对象
+  const planets = [];
+  
+  for (const planetData of SolarSystemConfig.PLANETS_DATA) {
+    // 检查行星名称是否存在
     if (!planetData.name) {
-      console.warn('行星数据缺少名称', planetData);
+      console.warn('行星数据缺少名称:', planetData);
+      continue;
     }
-    
+
     try {
+      // 创建行星和轨道
       const planet = createPlanet(planetData);
       createOrbitLine(planetData, planetData.orbitColor);
-      return planet;
-    } catch (e) {
-      console.error(`创建行星 ${planetData.name || '未知'} 失败:`, e);
-      return null;
+      planets.push(planet);
+    } catch (error) {
+      console.error(`创建行星 ${planetData.name} 失败:`, error);
     }
-  }).filter(Boolean); // 过滤掉创建失败的行星
+  }
+
+  return planets;
 }
 
 function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
