@@ -124,7 +124,7 @@ function createPlanets() {
   }).filter(Boolean); // 过滤掉创建失败的行星
 }
 
-function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name, initialAngle = 0 }) {
   if (typeof semiMajorAxis !== 'number' || semiMajorAxis <= 0) {
     throw new Error(`行星 ${name || '未知'} 必须提供有效的 semiMajorAxis 参数`);
   }
@@ -156,7 +156,7 @@ function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name 
     semiMajorAxis,
     eccentricity,
     name,
-    initialAngle: planetData.initialAngle || 0
+    initialAngle: initialAngle || 0
   };
   
   return {
