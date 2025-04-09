@@ -111,17 +111,26 @@ function createPlanets() {
   });
 }
 
-function createPlanet({ radius, orbitRadius, semiMajorAxis, eccentricity, speed, color, name }) {
+function createPlanet({ radius, semiMajorAxis, eccentricity, speed, color, name }) {
+  if (typeof semiMajorAxis === 'undefined') {
+    throw new Error('必须提供 semiMajorAxis 参数');
+  }
+
   const planet = new THREE.Mesh(
     new THREE.SphereGeometry(radius, 32, 32),
     new THREE.MeshPhongMaterial({ color })
   );
-  // 初始位置在轨道近地点（与轨道线计算一致）
-  const initialAngle = 0; // 近地点角度
-  const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(initialAngle));
-  planet.position.x = r * Math.cos(initialAngle);
-  planet.position.y = r * Math.sin(initialAngle);
-  planet.position.z = 0;
+  
+  // 使用开普勒方程计算初始位置（近地点）
+  const trueAnomaly = 0; // 近地点角度
+  const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
+  const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
+  
+  planet.position.set(
+    r * Math.cos(trueAnomaly), // X
+    r * Math.sin(trueAnomaly), // Y
+    0                          // Z
+  );
   scene.add(planet);
 
   const label = createPlanetLabel(name);
@@ -152,8 +161,10 @@ function createPlanetLabel(name) {
 }
 
 function createOrbitLine(planetData, color) {
-  const semiMajorAxis = planetData.semiMajorAxis || planetData.orbitRadius;
-  const eccentricity = planetData.eccentricity || 0;
+  const { semiMajorAxis, eccentricity = 0 } = planetData;
+  if (typeof semiMajorAxis === 'undefined') {
+    throw new Error('必须提供 semiMajorAxis 参数');
+  }
   const segments = planetData.orbitSegments || SolarSystemConfig.ORBIT_CONFIG.segments;
   
   const points = [];
@@ -205,8 +216,11 @@ function initSpeedControl() {
 
 function updatePlanetPositions() {
   planets.forEach(planet => {
-    const semiMajorAxis = planet.semiMajorAxis || planet.orbitRadius;
-    const eccentricity = planet.eccentricity || 0;
+    const { semiMajorAxis, eccentricity = 0 } = planet;
+    if (typeof semiMajorAxis === 'undefined') {
+      console.error('行星缺少 semiMajorAxis 参数', planet);
+      return;
+    }
     
     // 简化计算，使用固定角度增量
     planet.angle += planet.speed * simulationSpeed * 0.01;
