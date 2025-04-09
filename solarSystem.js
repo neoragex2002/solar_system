@@ -99,27 +99,8 @@ function createSun() {
 }
 
 function createPlanets() {
-  // Add Ceres (dwarf planet in asteroid belt)
-  const ceresData = {
-    radius: 0.08,  // 稍微放大以便观察
-    orbitRadius: 30,  // 调整到更明显的位置
-    speed: 0.012,  // 稍慢于火星
-    color: 0xCCCCCC,
-    name: '谷神星',
-    orbitColor: 0x888888  // 添加轨道颜色
-  };
-  
-  // Add Sedna (distant trans-Neptunian object)
-  const sednaData = {
-    radius: 0.08,
-    orbitRadius: 76.1,
-    speed: 0.00005,
-    color: 0xFF6633,
-    name: '塞德娜'
-  };
-
-  // Create standard planets plus our new dwarf planets
-  const allPlanets = PLANETS_DATA.concat([ceresData, sednaData]);
+  // Use standard planets from PLANETS_DATA
+  const allPlanets = PLANETS_DATA;
   
   return allPlanets.map(planetData => {
     const planet = createPlanet(planetData);
