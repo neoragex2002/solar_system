@@ -111,7 +111,8 @@ function createPlanet({ radius, orbitRadius, semiMajorAxis, eccentricity, speed,
     new THREE.SphereGeometry(radius, 32, 32),
     new THREE.MeshPhongMaterial({ color })
   );
-  planet.position.x = orbitRadius;
+  // 初始位置在轨道近地点
+  planet.position.x = semiMajorAxis * (1 - eccentricity);
   scene.add(planet);
 
   const label = createPlanetLabel(name);
@@ -151,12 +152,13 @@ function createOrbitLine(planetData, color) {
     const angle = (i / segments) * Math.PI * 2;
     // 统一使用右手坐标系，Z轴向上
     // 统一使用右手坐标系，Z轴向上
-    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(angle));
-    // 右手坐标系，Z轴向上，Y轴指向屏幕内
+    // 精确椭圆轨道计算
+    const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
+    const r = semiLatusRectum / (1 + eccentricity * Math.cos(angle));
     points.push(new THREE.Vector3(
-      r * Math.cos(angle),  // X轴
-      r * Math.sin(angle),  // Y轴
-      0                     // Z轴
+      r * Math.cos(angle),
+      r * Math.sin(angle),
+      0
     ));
   }
   
@@ -202,14 +204,24 @@ function updatePlanetPositions() {
     // 简化计算，使用固定角度增量
     planet.angle += planet.speed * simulationSpeed * 0.01;
     
-    // 计算椭圆轨道位置
-    const r = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(planet.angle));
-    // 保持与轨道线相同的坐标系
-    // 保持与轨道线相同的坐标系
-    // 右手坐标系，Z轴向上，Y轴指向屏幕内
-    planet.mesh.position.x = r * Math.cos(planet.angle);  // X轴
-    planet.mesh.position.y = r * Math.sin(planet.angle);  // Y轴
-    planet.mesh.position.z = 0;                           // Z轴
+    // 精确计算椭圆轨道位置
+    const trueAnomaly = planet.angle;
+    const semiLatusRectum = semiMajorAxis * (1 - eccentricity * eccentricity);
+    const r = semiLatusRectum / (1 + eccentricity * Math.cos(trueAnomaly));
+    
+    // 统一使用右手坐标系，Z轴向上
+    planet.mesh.position.x = r * Math.cos(trueAnomaly);
+    planet.mesh.position.y = r * Math.sin(trueAnomaly);
+    planet.mesh.position.z = 0;
+    
+    // 验证中心点位置
+    const expectedX = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.cos(trueAnomaly);
+    const expectedY = semiMajorAxis * (1 - eccentricity * eccentricity) / (1 + eccentricity * Math.cos(trueAnomaly)) * Math.sin(trueAnomaly);
+    console.assert(
+      Math.abs(planet.mesh.position.x - expectedX) < 0.001 && 
+      Math.abs(planet.mesh.position.y - expectedY) < 0.001,
+      'Planet position does not match orbit line'
+    );
     
     // 归一化角度
     if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
