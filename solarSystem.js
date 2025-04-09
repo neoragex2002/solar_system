@@ -1,7 +1,6 @@
 /**
  * 太阳系模拟 - 主配置文件
  */
-const DEBUG = false; // 设为true启用开发调试
 const SolarSystemConfig = {
   SUN_CONFIG: {
     radius: 5,
@@ -335,7 +334,6 @@ function updatePlanetPositions() {
     planet.mesh.position.y = r * Math.sin(trueAnomaly);  // Y轴：上为正
     planet.mesh.position.z = 0;                         // Z轴：屏幕外为正（XY平面运动）
     
-    // 轨道位置验证 (已移除生产环境不需要的检查)
     
     // 归一化角度
     if (planet.angle > Math.PI * 2) planet.angle -= Math.PI * 2;
