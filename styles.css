@@ -55,6 +55,7 @@
     text-align: center;
 }
 
+.sun-label,
 .planet-label {
     position: fixed;
     color: white;

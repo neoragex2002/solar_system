@@ -19,7 +19,7 @@ controls.update();
 initLights();
 
 // 创建太阳系
-const { sun } = createSun();
+const { sun, sunLabel } = createSun();
 const planets = createPlanets();
 
 // 初始化后期处理
@@ -92,7 +92,10 @@ function createSun() {
     SolarSystemConfig.LIGHT_CONFIG.sunLight.distance
   ));
 
-  return { sun };
+  // 创建太阳标签
+  const sunLabel = createSunLabel('太阳');
+  
+  return { sun, sunLabel };
 }
 
 function createPlanets() {
@@ -120,6 +123,14 @@ function createPlanet({ radius, orbitRadius, speed, color, name }) {
     speed,
     angle: Math.random() * Math.PI * 2
   };
+}
+
+function createSunLabel(name) {
+  const label = document.createElement('div');
+  label.className = 'planet-label sun-label';
+  label.textContent = name;
+  document.body.appendChild(label);
+  return label;
 }
 
 function createPlanetLabel(name) {
@@ -170,6 +181,24 @@ function updatePlanetPositions() {
   });
 }
 
+function updateSunLabelPosition() {
+  const sunWorldPos = new THREE.Vector3();
+  sun.getWorldPosition(sunWorldPos);
+  const screenPos = sunWorldPos.clone().project(camera);
+  
+  if (screenPos.z > 1 || screenPos.z < -1) {
+    sunLabel.style.display = 'none';
+    return;
+  }
+
+  const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight - 50; // 太阳标签比行星标签更高
+
+  sunLabel.style.display = 'block';
+  sunLabel.style.top = `${y}px`;
+  sunLabel.style.left = `${x}px`;
+}
+
 function updateLabelPosition(planet) {
   const planetWorldPos = new THREE.Vector3();
   planet.mesh.getWorldPosition(planetWorldPos);
@@ -195,6 +224,7 @@ function animate() {
   
   sun.rotation.y += 0.005;
   updatePlanetPositions();
+  updateSunLabelPosition();
   
   // 更新太阳光晕效果
   if (bloomPass) {
@@ -221,6 +251,10 @@ window.addEventListener('resize', () => {
 
 // 清理标签
 window.addEventListener('beforeunload', () => {
+  // 清理标签
+  if (sunLabel && sunLabel.parentNode) {
+    sunLabel.parentNode.removeChild(sunLabel);
+  }
   planets.forEach(planet => {
     if (planet.label && planet.label.parentNode) {
       planet.label.parentNode.removeChild(planet.label);
